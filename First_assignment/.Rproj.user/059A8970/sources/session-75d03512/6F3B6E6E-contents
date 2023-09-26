@@ -1,0 +1,28 @@
+---
+title: "A statistical analysis of stock indices in emerging markets"
+author: "Even Oscar Harlert"
+date: 09/14/2023
+format: pdf
+---
+
+## Emerging markets
+
+Emerging markets can be a great investment opportunity. However, to make well informed investment decisions it is important to analyse the available data to understand the risk and reward. By analyzing the available data we will gain better understanding of the historical development and future outlook in these markets.
+
+Questions:
+
+-   What can we expect from these markets in the future?
+
+-   How have they performed historically?
+
+-   What risk and return can be expected?
+
+-   What current trends are we observing?
+
+To define the scope of emerging markets I will narrow it down to the following five countries: China, India, Taiwan, Brazil and Egypt. The data I will be using will be time-series spanning 20 years with monthly observations.
+
+## Data collection
+
+My intention is to use [refinitive/datastream](https://www.refinitiv.com/en) that is accessible on campus at NMBU. Refinitive is a data provider for investment professionals and gives access to a large amount of data. For more information regarding my choice of source for data you can follow [this](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&ved=2ahUKEwjyuJC2oaqBAxVqcvEDHYKbBq0QFnoECBQQAQ&url=https%3A%2F%2Fwww.refinitiv.com%2Fcontent%2Fdam%2Fmarketing%2Fen_us%2Fdocuments%2Ffact-sheets%2Fdatastream-economic-data-macro-research-fact-sheet.pdf&usg=AOvVaw30SSUOKm-vxPu-EcXoJIgo&opi=89978449) link.
+
+I am confident that this source will suffice for all the economical data I will need in this project. However, I reserve myself to be able to use other data sources for financial data if the need presents itself. I will also be using other sources to put the financial data into context of each market.
