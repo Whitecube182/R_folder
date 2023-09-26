@@ -9,6 +9,8 @@ format: pdf
 
 Emerging markets can be a great investment opportunity. However, to make well informed investment decisions it is important to analyse the available data to understand the risk and reward. By analyzing the available data we will gain better understanding of the historical development and future outlook in these markets.
 
+If we continue
+
 Questions:
 
 -   What can we expect from these markets in the future?
