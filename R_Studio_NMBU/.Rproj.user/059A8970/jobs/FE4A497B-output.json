@@ -1,7 +1,0 @@
-[2,"\n"]
-[1,"\r\n\r\nprocessing file: tyest.qmd\r\n1/5                  \r\n2/5 [unnamed-chunk-1]\r\n"]
-[1,"3/5                  \r\n4/5 [unnamed-chunk-2]\r\n"]
-[1,"5/5                  \r\noutput file: tyest.knit.md\r\n\r\n"]
-[1,"pandoc \n  to: latex\n  output-file: tyest.tex\n  standalone: true\n  pdf-engine: xelatex\n  variables:\n    graphics: true\n    tables: true\n  default-image-extension: pdf\n  \nmetadata\n  documentclass: scrartcl\n  classoption:\n    - DIV=11\n    - numbers=noendperiod\n  papersize: letter\n  header-includes:\n    - '\\KOMAoption{captions}{tableheading}'\n  block-headings: true\n  title: Test\n  author: Even Oscar Harlert\n  editor: visual\n  where: 'NMBU Ås, Norway'\n  \n"]
-[1,"running xelatex - 1\n"]
-[1,"\nNo TeX installation was detected.\n\nPlease run 'quarto install tinytex' to install TinyTex.\nIf you prefer, you may install TexLive or another TeX distribution.\n\n"]
