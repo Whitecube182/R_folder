@@ -75,3 +75,10 @@ ggplot(
     color = "Species", shape = "Species"
   ) +
   scale_color_colorblind()
+
+palmerpenguins::penguins |> 
+  ggplot(aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point() +
+  geom_smooth()
+
+#Usage of bar pointer
