@@ -115,3 +115,52 @@ flights %>%
 contains_time <- select(flights, contains("TIME"))
 
 view(contains_time)
+
+#The raltionship between departure, schedueled departure and delay:
+# dep_time - scheduled dep time = delay
+
+variables <- c("year", "month", "day", "dep_delay", "arr_delay")
+
+view(variables)
+
+#This objects only saves the actual names in the c() commande
+
+test <- flights |>
+  select(all_of(variables))
+
+view(test)
+
+flights |>
+  select(air_time = airtime)
+
+
+#4.4 The pipe, the strength is to combine multiply verbs
+
+search_funk <- flights |>
+  filter(dest == "IAH") |>
+  mutate(speed = distance / air_time * 60) |>
+  select(year:day, dep_time, carrier, flight, speed) |>
+  arrange(desc(speed))
+
+#Filter destination to IAH, adds the column speed, selects, arranges
+
+library(tidyverse)
+
+view(mtcars)
+
+mtcars %>%
+  group_by(cyl) |>
+  summarize(n = n())
+
+#two different kinds of pipes |> and %>%
+#they behave a bit different in more complex operations
+
+flights |>
+  group_by(month) |>
+  summarize(
+    avg_delay = mean(dep_delay, na.rm = TRUE)
+  )
+
+#group by month, summarize the average dep_delay and ignore the empty cells
+
+
