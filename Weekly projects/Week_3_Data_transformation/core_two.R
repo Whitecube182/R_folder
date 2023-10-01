@@ -163,4 +163,41 @@ flights |>
 
 #group by month, summarize the average dep_delay and ignore the empty cells
 
+flights |>
+  group_by(month) |>
+  summarize(
+    delay = mean(dep_delay, na.rm = TRUE),
+    observations = n()
+  )
 
+# There are five handy functions that allow you extract specific rows within each group:
+# df |> slice_head(n = 1) takes the first row from each group.
+# df |> slice_tail(n = 1) takes the last row in each group.
+# df |> slice_min(x, n = 1) takes the row with the smallest value of column x.
+# df |> slice_max(x, n = 1) takes the row with the largest value of column x.
+# df |> slice_sample(n = 1) takes one random row.
+
+
+flights |>
+  group_by(dest) |>
+  slice_max(arr_delay, n = 1) |>
+  relocate(dest)
+
+daily <- flights |>
+  group_by(year, month, day)
+
+view(daily)
+
+
+daily_flights <- daily |>
+  summarize(n = n())
+
+daily |>
+  ungroup()
+
+daily |>
+  ungroup() |>
+  summarize(
+    avg_delay = mean(dep_delay, na.rm = TRUE),
+    flights = n()
+  )
