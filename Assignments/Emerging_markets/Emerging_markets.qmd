@@ -1,0 +1,57 @@
+---
+title: "Emerging Markets"
+author: 
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+```{r}
+
+```
+
+## Project librarys
+
+This project are using a couple of librarys, they are the following:
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(psych)
+```
+
+NB! We will add any library we add and check it at the end to assure that the project is not missing any dependencies.
+
+Feel free to add commenting on any of these projects.
+
+## Data wrangling
+
+We start our project out by downloading data from refinitive. The data is stored as a excel file that has been stored in the project folder. To make it possible to work with in r we start by importing the file.
+
+```{r}
+index_emerging_markets <- read_excel("FTSE 20.09.23 - EOH.xlsx", skip = 6)
+glimpse(index_emerging_markets)
+```
+
+This code tells r to read the excel file in our folder, however skip the first 6 lines as they are not of any use to use. The dataset is now recognized as a tibble with 241 rows and 7 columns. By using glimpse we can see that the type of data is \<dttm\> (the date of the observation) and the rest are \<dbl\> (that dates current value).
+
+The data is downloaded in US dollars and the 20 year frame is from 19 september 2003 and 19. September 2023.
+
+From this point we want to normalize the data so we have a fair comparison point with the base of 100. In order to do so we are using the following line:
+
+```{r}
+normalized <- index_emerging_markets |>
+  mutate(
+    FTSEWorldN = FTSEWorld / (146.2 / 100),
+    IndiaN = India / (332.5 / 100),
+    EgyptN = Egypt / (59.04 / 100),
+    ChinaN = China / (672.28 / 100),
+    BrazilN = Brazil / (150.65 / 100),
+    TaiwanN = Taiwan / (182.21 / 100),
+  )
+```
+
+The code above adds 6 new columns where the data is normalized and starts at 100 on the 19. September 2023.
+
+**CONTINUE LATER**

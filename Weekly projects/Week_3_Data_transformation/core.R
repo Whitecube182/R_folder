@@ -13,6 +13,7 @@ library(tidyverse)
 #view(flights) opens a separated window with the data
 
 view(flights) 
+summarize(flights)
 
 #glimpse shows the amount of columns and Rows for the data set
 
