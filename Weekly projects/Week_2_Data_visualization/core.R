@@ -9,19 +9,18 @@ library(ggthemes)
 #Code starts here ----
 
 view(palmerpenguins::penguins_raw)
-
 glimpse(palmerpenguins::penguins)
 
 summary(penguins)
 
 
-#First two frames, defines y and x axel, miss the fram on top
+#First two frames, defines y and x axis, miss the frame on top
 ggplot(
   data = penguins,
   mapping = aes(x = flipper_length_mm, y = body_mass_g)
 )
 
-#Geom introduced, third layer placed with the relations on length and bodymass
+#Geom introduced, third layer placed with the relations on length and body mass
 
 ggplot (
   data = penguins,
@@ -63,3 +62,25 @@ ggplot(
 
 #Might have been mistaken before, might be 6 shapes instaed of colors
 
+#Final step is to add proper legends to the graph
+
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+) +
+  geom_point(aes(color = species, shape = species)) +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Bodymass and flipper length",
+    subtitle = "Dimensions for Ade, Chi and Gen Penguins",
+    x = "Flippa length", y = "Body mass",
+    color = "Species", shape = "Species"
+  ) +
+  scale_color_colorblind()
+
+palmerpenguins::penguins |> 
+  ggplot(aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point() +
+  geom_smooth()
+
+#Usage of bar pointer
