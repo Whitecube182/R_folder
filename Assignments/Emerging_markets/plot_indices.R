@@ -14,3 +14,14 @@ ggplot(
 #Making 6 different graphs presented beside eachother
 
 ggplot(normalized, aes(x = ))
+
+ggplot(
+  data = normalized_trimmed,
+  mapping = aes(x = Date)
+) +
+  geom_line(aes(y = FTSE_per, color = "red")) +
+  geom_line(aes(y = China_per, color = "green")) +
+  geom_line(aes(y = Brazil_per, color = "gray")) +
+  geom_line(aes(y = Taiwan_per, color = "pink")) +
+  geom_line(aes(y = Brazil_per, color = "blue")) +
+  geom_line(aes(y = Taiwan_per, color = "orange"))
