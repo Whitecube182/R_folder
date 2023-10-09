@@ -52,6 +52,6 @@ normalized <- index_emerging_markets |>
   )
 ```
 
-The code above adds 6 new columns where the data is normalized and starts at 100 on the 19. September 2023.
+The code above adds 6 new columns where the data is normalized and starts at 100 on the 19. September 2003.
 
 **CONTINUE LATER**

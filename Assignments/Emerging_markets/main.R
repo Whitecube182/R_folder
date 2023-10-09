@@ -11,9 +11,6 @@ library(psych)
 #Data transformation for the indices ----
 
 
-
-
-
 #Load data from excel file and place it in a object
 
 index_emerging_markets <- read_excel("FTSE 20.09.23 - EOH.xlsx", skip = 6)
