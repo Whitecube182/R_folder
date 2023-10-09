@@ -1,12 +1,17 @@
 #Load lib ----
 
-#install.packages("psych") if need be
+#install.packages("psych") if needed
+#install.packages("here") if needed
 
+library(here)
 library(tidyverse)
 library(readxl)
 library(psych)
 
 #Data transformation for the indices ----
+
+
+
 
 
 #Load data from excel file and place it in a object
