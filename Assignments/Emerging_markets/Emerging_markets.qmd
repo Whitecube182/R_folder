@@ -1,15 +1,32 @@
 ---
 title: "Emerging Markets"
-author: 
+subtitle: "An exploration into five emerging markets. This paper will explore the correlation of FTSE indicies and development metrics such as GDP, GINI and more."
+author: "Even Oscar Harlert"
+date: 10/18/2023
+format: pdf
 ---
 
-## Quarto
+## Introduction
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+Emerging markets can be great investment opportunity. In order to make good investment decisions and understand the risk and return for any investment you have to analyze historical data.
 
-```{r}
+To measure countries development there are several metrics that can be useful. In this paper we will use GDP, **INSERT 3 MORE METRICS**. --\>
 
-```
+In this paper we will explore the correlation between stock market development and different development metrics in order to answer the following questions:
+
+-   How correlated are the development metrics and the stock market indicies?
+
+-   With the assumption that they are related, what are the reasons for divergences in the data sets?
+
+-   
+
+In order to answer the questions above this paper will analyze the data by deriving statistical metrics from the original data sets and test correlation between them .
+
+## Data sets
+
+There are two data sets acquired for this paper. The first one is downloaded from [refinitive/datastream](https://www.refinitiv.com/en). For more information regarding you can click this [link](https://www.refinitiv.com/content/dam/marketing/en_us/documents/fact-sheets/datastream-economic-data-macro-research-fact-sheet.pdf). This will be refereed to as dataset one. The data in the file are time-series spanning from 19. September 2003 to 19. September 2023. The measurements are done with a monthly interval. All data points are represented in US dollar.
+
+The second data set is xxxxxxxxx. \<\-- get back to this
 
 ## Project librarys
 
@@ -34,7 +51,7 @@ index_emerging_markets <- read_excel("FTSE 20.09.23 - EOH.xlsx", skip = 6)
 glimpse(index_emerging_markets)
 ```
 
-This code tells r to read the excel file in our folder, however skip the first 6 lines as they are not of any use to use. The dataset is now recognized as a tibble with 241 rows and 7 columns. By using glimpse we can see that the type of data is \<dttm\> (the date of the observation) and the rest are \<dbl\> (that dates current value).
+This code tells r to read the excel file in our folder, however skip the first 6 lines as they are not of any use to us. The dataset is now recognized as a tibble with 241 rows and 7 columns. By using glimpse we can see that the type of data is \<dttm\> (the date of the observation) and the rest are \<dbl\> (that dates current value).
 
 The data is downloaded in US dollars and the 20 year frame is from 19 september 2003 and 19. September 2023.
 
@@ -50,8 +67,7 @@ normalized <- index_emerging_markets |>
     BrazilN = Brazil / (150.65 / 100),
     TaiwanN = Taiwan / (182.21 / 100),
   )
+view(normalized)
 ```
 
 The code above adds 6 new columns where the data is normalized and starts at 100 on the 19. September 2003.
-
-**CONTINUE LATER**
