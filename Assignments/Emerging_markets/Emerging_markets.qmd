@@ -1,6 +1,6 @@
 ---
 title: "Emerging Markets"
-subtitle: "An exploration into five emerging markets. This paper will explore the correlation of FTSE indicies and development metrics such as GDP, GINI and more."
+subtitle: "An exploration into four emerging markets. This paper will explore the correlation of FTSE indicies and GDP."
 author: "Even Oscar Harlert"
 date: 10/18/2023
 format: pdf
@@ -16,7 +16,7 @@ In this paper we will explore the correlation between stock market development a
 
 -   How correlated are the development metrics and the stock market indicies?
 
--   With the assumption that they are related, what are the reasons for divergences in the data sets?
+-   With the assumption that they are related, what are the reasons for divergences in the results?
 
 -   
 
@@ -33,25 +33,25 @@ The second data set is xxxxxxxxx. \<\-- get back to this
 This project are using a couple of librarys, they are the following:
 
 ```{r}
-library(tidyverse)
-library(readxl)
-library(psych)
+source("r_scripts/01libraries.R")
 ```
+
+To make the code cleaner I've made a script folder and separated the required libraries in that file.
+
+**\*\*INSERT TABLE OF THE FINAL VERSION OF LIBRARIES BEFORE EXPORTING THE REPORT \*\***
 
 NB! We will add any library we add and check it at the end to assure that the project is not missing any dependencies.
 
-Feel free to add commenting on any of these projects.
-
 ## Data wrangling
 
-We start our project out by downloading data from refinitive. The data is stored as a excel file that has been stored in the project folder. To make it possible to work with in r we start by importing the file.
+We start our project out by downloading data from refinitive. Since the data is actually only accessable from the terminals located on floor five in the tower building at NMBU you would have to access these in order to downlaod the exact same data. I've provided a link to my set here (insert link to github). The data is stored as a excel file that has been stored in the project folder. To make it possible to work with in r we start by importing the file.
 
 ```{r}
-index_emerging_markets <- read_excel("FTSE 20.09.23 - EOH.xlsx", skip = 6)
-glimpse(index_emerging_markets)
+index_emerging_markets <- read_excel("datasets/FTSE 20.09.23 - EOH.xlsx", skip = 6)
+
 ```
 
-This code tells r to read the excel file in our folder, however skip the first 6 lines as they are not of any use to us. The dataset is now recognized as a tibble with 241 rows and 7 columns. By using glimpse we can see that the type of data is \<dttm\> (the date of the observation) and the rest are \<dbl\> (that dates current value).
+The data in this file is currently in absolute values. In order to compare them to each other we need to normalize them
 
 The data is downloaded in US dollars and the 20 year frame is from 19 september 2003 and 19. September 2023.
 
@@ -67,7 +67,30 @@ normalized <- index_emerging_markets |>
     BrazilN = Brazil / (150.65 / 100),
     TaiwanN = Taiwan / (182.21 / 100),
   )
-view(normalized)
 ```
 
 The code above adds 6 new columns where the data is normalized and starts at 100 on the 19. September 2003.
+
+```{r}
+final_desc_data_log |> head()
+```
+
+Here we now have a table of the number of the following:
+
+-   n = Number of observations
+
+-   mean = The average change
+
+-   sd = standard deviation, the average deviation from the mean
+
+-   skew = The tilt of the distribution curve
+
+-   kurtosis = Messurment of the tail of the distrubtion curve.
+
+This data will allow for us to compare the different data sets.
+
+Future:
+
+-   Check the Cov() and Cor()
+
+Sidenote
