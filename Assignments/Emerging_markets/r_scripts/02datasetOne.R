@@ -1,22 +1,15 @@
 #Load lib ----
 
-#install.packages("psych") if needed
-#install.packages("here") if needed
-
 library(here)
 library(tidyverse)
 library(readxl)
 library(psych)
 
 #Data transformation for the indices ----
-
-
 #Load data from excel file and place it in a object
 
-index_emerging_markets <- read_excel("FTSE 20.09.23 - EOH.xlsx", skip = 6)
+index_emerging_markets <- read_excel("datasets/FTSE 20.09.23 - EOH.xlsx", skip = 6)
 
-#Quick look at the tibble
-glimpse(index_emerging_markets)
 
 #Change the name of the first column to date
 
@@ -25,7 +18,6 @@ index_emerging_markets <- index_emerging_markets |>
     Date = Name
   )
 
-glimpse(index_emerging_markets)
 #We want to normalize the values with the base 100 and add these to the table
 
 normalized <- index_emerging_markets |>
@@ -35,13 +27,12 @@ normalized <- index_emerging_markets |>
     EgyptN = Egypt / (59.04 / 100),
     ChinaN = China / (672.28 / 100),
     BrazilN = Brazil / (150.65 / 100),
-    TaiwanN = Taiwan / (182.21 / 100),
   )
 
 #Select only the normalized data
 
 normalized_trimmed <- normalized |>
-  select(Date, FTSEWorldN:TaiwanN)
+  select(Date, FTSEWorldN:BrazilN)
 
 #Create a new section of columns for logarithmic (log10) returns
 
@@ -52,7 +43,6 @@ normalized_trimmed <- normalized_trimmed |>
     EgyptN_Log = c(NA, log(EgyptN[-1] / EgyptN[-nrow(normalized)])),
     China_Log = c(NA, log(ChinaN[-1] / ChinaN[-nrow(normalized)])),
     Brazil_Log = c(NA, log(BrazilN[-1] / BrazilN[-nrow(normalized)])),
-    Taiwan_Log = c(NA, log(TaiwanN[-1] / TaiwanN[-nrow(normalized)])),
   )
 
 #Multiply each of the log returns by 100 to show them in %
@@ -63,16 +53,36 @@ normalized_trimmed <- normalized_trimmed |>
     Egpyt_per = EgyptN_Log * 100, 
     China_per = China_Log * 100, 
     Brazil_per = Brazil_Log * 100,
-    Taiwan_per  = Taiwan_Log * 100,
   )
+
+#Put log to another df
+
+log_return <- select(normalized_trimmed,
+    -"FTSEWorldN":-"BrazilN"
+  )
+
+log_return <- log_return[-1, ]
 
 #Export descriptive_data from the normalized frame to a new object
 
-desc_data <- describe(normalized_trimmed)
+desc_data <- describe(normalized_trimmed) |>
+  t()
 
-#Transpose the descriptive data to 
+#Make it back to a df from a matrix
+desc_data <- as.data.frame(desc_data)
 
-transp_desc_data <- t(desc_data)
+#Remove rows with information we do not need
+desc_data <- desc_data[-c(1, 5:9), ]
+
+
+#Remove the column date as dates isn't a thing in the descriptive statistics
+desc_data <- select(desc_data,
+                    -"FTSE_per":-"Brazil_per"
+                    )
+
+final_desc_data_log <- select(desc_data,
+                              FTSEWorld_Log:Taiwan_Log
+                              )
 
 #write the data to a csv file in our project folder
 
