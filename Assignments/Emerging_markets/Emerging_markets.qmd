@@ -1,5 +1,5 @@
 ---
-title: "Emerging Markets"
+title: "Emerging Markets indecies correlation to GDP"
 subtitle: "An exploration into four emerging markets. This paper will explore the correlation of FTSE indicies and GDP."
 author: "Even Oscar Harlert"
 date: 10/18/2023
@@ -10,35 +10,32 @@ format: pdf
 
 Emerging markets can be great investment opportunity. In order to make good investment decisions and understand the risk and return for any investment you have to analyze historical data.
 
-To measure countries development there are several metrics that can be useful. In this paper we will use GDP, **INSERT 3 MORE METRICS**. --\>
-
-In this paper we will explore the correlation between stock market development and different development metrics in order to answer the following questions:
-
--   How correlated are the development metrics and the stock market indicies?
-
--   With the assumption that they are related, what are the reasons for divergences in the results?
-
--   
-
-In order to answer the questions above this paper will analyze the data by deriving statistical metrics from the original data sets and test correlation between them .
+To measure countries development there are several metrics that can be useful. In this paper we will use keep things simple and only use one metric and that is gross domestic product (GDP onwards). We could use a lot more metrics but to limit the scope of this paper we are only using GDP. In a separate dataset we will have the population for the countries in question.
 
 ## Data sets
 
-There are two data sets acquired for this paper. The first one is downloaded from [refinitive/datastream](https://www.refinitiv.com/en). For more information regarding you can click this [link](https://www.refinitiv.com/content/dam/marketing/en_us/documents/fact-sheets/datastream-economic-data-macro-research-fact-sheet.pdf). This will be refereed to as dataset one. The data in the file are time-series spanning from 19. September 2003 to 19. September 2023. The measurements are done with a monthly interval. All data points are represented in US dollar.
+There are two data sets acquired for this paper. The first one is downloaded from [refinitive/datastream](https://www.refinitiv.com/en). For more information regarding the data provider you can follow this [link](https://www.refinitiv.com/content/dam/marketing/en_us/documents/fact-sheets/datastream-economic-data-macro-research-fact-sheet.pdf). This will be refereed to as dataset one. The data in the file are time-series spanning from 19. September 2003 to 19. September 2023. The measurements are done with a monthly interval. All data points are represented in US dollar.
 
-The second data set is xxxxxxxxx. \<\-- get back to this
+The second data set is downloaded from The World Bank. The data-set is actually divide into two*(might be more*) files but will be combined in RStudio as they each only contain one kind of data, GDP and population.
 
-## Project librarys
+## Project libraries
 
-This project are using a couple of librarys, they are the following:
+This project will make use of several libraries in RStudio. In order to use them we need to load them. To avoid any problems with replicating the code I've made a file to load all. This file also contains a comment with an install command if you are missing any of them on your local setup. To access the install command you can mark the area in the file and press "CTRL+Shift+C". This will remove the comment and allow you to press CTRL+ENTER to execute the code and install dependencies.
 
 ```{r}
 source("r_scripts/01libraries.R")
 ```
 
-To make the code cleaner I've made a script folder and separated the required libraries in that file.
+To make the code cleaner, I've made a script folder and separated the required libraries in that file. The command above simply executes the commands in that file. The following are the lines that has been executed.
 
-**\*\*INSERT TABLE OF THE FINAL VERSION OF LIBRARIES BEFORE EXPORTING THE REPORT \*\***
+```{r}
+library(here)
+library(tidyverse)
+library(readxl)
+library(psych)
+library(janitor)
+library(readxl)
+```
 
 NB! We will add any library we add and check it at the end to assure that the project is not missing any dependencies.
 
@@ -65,15 +62,10 @@ normalized <- index_emerging_markets |>
     EgyptN = Egypt / (59.04 / 100),
     ChinaN = China / (672.28 / 100),
     BrazilN = Brazil / (150.65 / 100),
-    TaiwanN = Taiwan / (182.21 / 100),
   )
 ```
 
 The code above adds 6 new columns where the data is normalized and starts at 100 on the 19. September 2003.
-
-```{r}
-final_desc_data_log |> head()
-```
 
 Here we now have a table of the number of the following:
 
@@ -94,3 +86,7 @@ Future:
 -   Check the Cov() and Cor()
 
 Sidenote
+
+## Access to the project files
+
+The files and data for this project has been made public on GitHub and you can find it on this link. I personally always found it useful to look at other peoples work when learning and hopefully this can come to use for someone else. All links are relative and should be fully replaceable.

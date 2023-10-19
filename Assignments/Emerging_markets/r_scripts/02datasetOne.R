@@ -1,10 +1,3 @@
-#Load lib ----
-
-library(here)
-library(tidyverse)
-library(readxl)
-library(psych)
-
 #Data transformation for the indices ----
 #Load data from excel file and place it in a object
 
@@ -81,11 +74,11 @@ desc_data <- select(desc_data,
                     )
 
 final_desc_data_log <- select(desc_data,
-                              FTSEWorld_Log:Taiwan_Log
+                              FTSEWorld_Log:Brazil_Log
                               )
 
 #write the data to a csv file in our project folder
 
-write.csv(transp_desc_data, "exported_data/desc_data.csv")
+write.csv(final_desc_data_log, "exported_data/desc_data_log.csv")
 
 
