@@ -18,9 +18,11 @@ This paper will have a limited scope. We are seeking to investigate indices data
 
 -   How has the historical development been in indices founds been in India, Egypt, China and Brazil?
 
--   How has the historical risk been?
+-   What has the historical risk been?
 
 -   What degree of correlation does the indices have with the GDP for each country?
+
+In this paper, we consider risk to be standard deviation of the dataset.
 
 ## Data sets
 
@@ -51,7 +53,7 @@ NB! We will add any library we add and check it at the end to assure that the pr
 
 With all the libraries loaded we are ready to start working with our data sets. To be able to replica the current sets I've made a github repo where you can access the files, they can be accessed [here](https://github.com/Whitecube182/BUS350). Dataset two is accessible from [World Bank DataBank](https://data.worldbank.org/indicator). However, the refinitive dataset would required you to have a refinitive account. Therefore, to assure that the project is reproducible I made the repository linked above.
 
-In all we have three excel files in the folder datasets in the project.
+In all, we have three excel files in the folder datasets that can be accessed in the project folder.
 
 ## Import, tidy & transformation
 
@@ -61,7 +63,7 @@ This section will be split into three sections:
 
 2.  Import tidy and transform dataset two
 
-3.  We combine the datasets into dataframes we can use for visualzation and modelling
+3.  We join the datasets into dataframes we can use for visualzation and modelling.
 
 ## Dataset one
 
@@ -90,6 +92,8 @@ normalized <- index_emerging_markets |>
 ```
 
 The code above adds 6 new columns where the data is normalized and starts at 100 on the 19. September 2003. The code snippet above can be generalized as the following:
+
+*Initial value / ( Initial value / 100 ). The initial value divided by 100 will be exectued on each of the observation on each row. This results in a graph where we can compare each indicies including our benchmark (FTSE World).*
 
 To save some space we will combine a couple of lines of code:
 
@@ -141,9 +145,9 @@ write.csv(final_desc_data_log, "exported_data/desc_data_log.csv")
 
 The lines above does several things, in short:
 
--   We add rows for log(10) returns (most commonly used while working with historical returns in finance)
+-   We add rows for log(10) returns (most commonly used while working with historical returns in finance).
 
--   We create new dataframes that separates data
+-   We create new dataframes that separates data.
 
 -   We use describe() (a function from the psych package), it returns descriptive statistics from the dataset and we store this in a new dataframe called desc_data.
 
@@ -151,32 +155,113 @@ The lines above does several things, in short:
 
 At this point we have dataframes with the data organized to make further analysis later in the project.
 
+As mentioned earlier we used a function called describe, it returns the data in a frame where we have some abbreviations, for anyone not familiar with statistics they are the following:
+
+| Short    | Definition                                                                                                                                                                              |
+|----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| n        | Number of observations                                                                                                                                                                  |
+| mean     | The avarage                                                                                                                                                                             |
+| sd       | Standard deviation (this is considered risk in financial terms)                                                                                                                         |
+| skew     | Skewness is the degree of asymmetry observed in a probability distribution ([source](Skewness%20is%20the%20degree%20of%20asymmetry%20observed%20in%20a%20probability%20distribution.)). |
+| kurtosis | An indicator of the tail of the distribution ([source](https://www.investopedia.com/terms/k/kurtosis.asp)).                                                                             |
+| se       | Standard error, and estimation of the standard deviation.                                                                                                                               |
+
+: Describ() explination
+
 ## Dataset two
 
-Initial value / ( Initial value / 100 ). The initial value divided by 100 will be exectued on each of the observation on each row. This results in a graph where we can compare each indicies including our benchmark (FTSE World).
+The second dataset is actually two excel files downloaded from the World Bank. Again, we need to load the data into a dataframe:
 
-If we graph this it looks like the following:
+```{r}
+countries <- c("India", "Egypt, Arab Rep.", "China", "Brazil")
 
-Here we now have a table of the number of the following:
+gdp <- read_excel("datasets/gdp.xls", skip = 3)
 
--   n = Number of observations
+population <- read_excel("datasets/population.xls", skip = 3)
+```
 
--   mean = The average change
+In addition to loading two dataframes with the data from the files, we also stored the four values (the names of the countries we are working with.
 
--   sd = standard deviation, the average deviation from the mean
+The datsets are filled with data we do not have any use for therefore we need to tidy it:
 
--   skew = The tilt of the distribution curve
+```{r}
+gdp <- clean_names(gdp)
+population <- clean_names(population)
 
--   kurtosis = Messurment of the tail of the distrubtion curve.
 
-This data will allow for us to compare the different data sets.
+gdp_clean <- select(gdp,
+  -"x1960":-"x2002",
+  -"indicator_code",
+  -"indicator_name",
+  -"country_code"
+  ) |>
+  filter(
+    country_name %in% countries
+  ) |>
+  t() |>
+  row_to_names(row_number = 1) |>
+  as.data.frame()
 
-Future:
+population_clean <- select(population,
+  -"x1960":-"x2002",
+  -"indicator_code",
+  -"indicator_name",
+  -"country_code"
+  ) |> 
+  filter(
+    country_name %in% countries
+  ) |>
+  t() |>
+  row_to_names(row_number = 1) |>
+  as.data.frame()
 
--   Check the Cov() and Cor()
 
-Sidenote
+```
 
-## Current state of the project and access to the project files
+Above we are simply cleaning out and making usable dataframes for later in the project. There are simply two frames we are currently interested in here. Is population_clean and gdp_clean. We removed all years before 2003 as we are using this data together with the data from dataset one.
 
-I've made a repository on github on this [link](https://github.com/Whitecube182/R_folder/). The files for this project can be located under Assignments/Emerging_markets.
+## Join dataset one and two
+
+Now we have a decent amount of dataframes from the two first datasets. in order to make
+
+## Visualzation
+
+Until now we only have several dataframes and descriptive statistics from the datasets. In this section we will visualize the data to improve our understanding of what the data represent.
+
+The first thing we want to get a better overveiw over is dataset one.
+
+The normalized development of the FTSE Indicies can simply be graph it out doing the following:
+
+```{r}
+ggplot(
+  data = normalized_trimmed,
+  mapping = aes(x = Date, y = FTSEWorldN )
+) +
+  geom_line( mapping = aes())
+
+ggplot(
+  data = normalized_trimmed,
+  mapping = aes(x = Date, y = IndiaN )
+) +
+  geom_line( mapping = aes())
+
+ggplot(
+  data = normalized_trimmed,
+  mapping = aes(x = Date, y = EgyptN )
+) +
+  geom_line( mapping = aes())
+
+ggplot(
+  data = normalized_trimmed,
+  mapping = aes(x = Date, y = ChinaN )
+) +
+  geom_line( mapping = aes())
+
+ggplot(
+  data = normalized_trimmed,
+  mapping = aes(x = Date, y = BrazilN )
+) +
+  geom_line( mapping = aes())
+
+
+```

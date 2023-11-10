@@ -1,7 +1,7 @@
 
 
 #Names for the countries
-countries <- c("India", "Egypt, Arab Rep.", "China", "Brazil", "Taiwan")
+countries <- c("India", "Egypt, Arab Rep.", "China", "Brazil")
 
 
 #Import the data set from the file population
