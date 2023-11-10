@@ -16,12 +16,3 @@ source("r_scripts/02datasetOne.R")
 #Load and wrangle dataset two ----
 
 source("r_scripts/02datasetTwo")
-
-
-#Global variables
-
-
-
-
-
-

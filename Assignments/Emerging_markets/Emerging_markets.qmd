@@ -12,11 +12,21 @@ Emerging markets can be great investment opportunity. In order to make good inve
 
 To measure countries development there are several metrics that can be useful. In this paper we will use keep things simple and only use one metric and that is gross domestic product (GDP onwards). We could use a lot more metrics but to limit the scope of this paper we are only using GDP. In a separate dataset we will have the population for the countries in question.
 
+## Research question
+
+This paper will have a limited scope. We are seeking to investigate indices data representing each country. The countries selected for this paper are India, Egypt, China and Brazil.
+
+-   How has the historical development been in indices founds been in India, Egypt, China and Brazil?
+
+-   How has the historical risk been?
+
+-   What degree of correlation does the indices have with the GDP for each country?
+
 ## Data sets
 
-There are two data sets acquired for this paper. The first one is downloaded from [refinitive/datastream](https://www.refinitiv.com/en). For more information regarding the data provider you can follow this [link](https://www.refinitiv.com/content/dam/marketing/en_us/documents/fact-sheets/datastream-economic-data-macro-research-fact-sheet.pdf). This will be refereed to as dataset one. The data in the file are time-series spanning from 19. September 2003 to 19. September 2023. The measurements are done with a monthly interval. All data points are represented in US dollar.
+There are three datasets acquired for this paper. The first one is downloaded from [refinitive/datastream](https://www.refinitiv.com/en). For more information regarding the data provider you can follow this [link](https://www.refinitiv.com/content/dam/marketing/en_us/documents/fact-sheets/datastream-economic-data-macro-research-fact-sheet.pdf). This will be refereed to as dataset one. The data in the file are time-series spanning from 19. September 2003 to 19. September 2023. The measurements are done with a monthly interval. All data points are represented in US dollar.
 
-The second data set is downloaded from The World Bank. The data-set is actually divide into two*(might be more*) files but will be combined in RStudio as they each only contain one kind of data, GDP and population.
+The second data set is downloaded from The World Bank. The data-set is actually divide into two files but will be combined in RStudio as they each only contain one metric of data, GDP and population.
 
 ## Project libraries
 
@@ -39,20 +49,34 @@ library(readxl)
 
 NB! We will add any library we add and check it at the end to assure that the project is not missing any dependencies.
 
-## Data wrangling
+With all the libraries loaded we are ready to start working with our data sets. To be able to replica the current sets I've made a github repo where you can access the files, they can be accessed [here](https://github.com/Whitecube182/BUS350). Dataset two is accessible from [World Bank DataBank](https://data.worldbank.org/indicator). However, the refinitive dataset would required you to have a refinitive account. Therefore, to assure that the project is reproducible I made the repository linked above.
 
-We start our project out by downloading data from refinitive. Since the data is actually only accessable from the terminals located on floor five in the tower building at NMBU you would have to access these in order to downlaod the exact same data. I've provided a link to my set here (insert link to github). The data is stored as a excel file that has been stored in the project folder. To make it possible to work with in r we start by importing the file.
+In all we have three excel files in the folder datasets in the project.
+
+## Import, tidy & transformation
+
+This section will be split into three sections:
+
+1.  Import, tidy and transform dataset one
+
+2.  Import tidy and transform dataset two
+
+3.  We combine the datasets into dataframes we can use for visualzation and modelling
+
+## Dataset one
+
+Initially we want to start to access the data we collected in the dataset folder. The data is stored as a excel file that has been stored in the project folder. To make it possible to work with in r we start by importing the file and puting the data in a dataframe called index_emerging_markets.
 
 ```{r}
 index_emerging_markets <- read_excel("datasets/FTSE 20.09.23 - EOH.xlsx", skip = 6)
 
+index_emerging_markets <- index_emerging_markets |>
+  rename(
+    Date = Name
+  )
 ```
 
-The data in this file is currently in absolute values. In order to compare them to each other we need to normalize them
-
-The data is downloaded in US dollars and the 20 year frame is from 19 september 2003 and 19. September 2023.
-
-From this point we want to normalize the data so we have a fair comparison point with the base of 100. In order to do so we are using the following line:
+We changed to name of the coulmn for dates to dates from names with the second row. The data in this file is currently in absolute values of the indices. To be able to make comparisons we need to normalize the data with the start of 100. In order to do so we are using the following line:
 
 ```{r}
 normalized <- index_emerging_markets |>
@@ -65,7 +89,73 @@ normalized <- index_emerging_markets |>
   )
 ```
 
-The code above adds 6 new columns where the data is normalized and starts at 100 on the 19. September 2003.
+The code above adds 6 new columns where the data is normalized and starts at 100 on the 19. September 2003. The code snippet above can be generalized as the following:
+
+To save some space we will combine a couple of lines of code:
+
+```{r}
+normalized_trimmed <- normalized |>
+  select(Date, FTSEWorldN:BrazilN)
+
+normalized_trimmed <- normalized_trimmed |>
+  mutate(
+    FTSEWorld_Log = c(NA, log(FTSEWorldN[-1] / FTSEWorldN[-nrow(normalized)])),
+    India_Log = c(NA, log(IndiaN[-1] / IndiaN[-nrow(normalized)])),
+    EgyptN_Log = c(NA, log(EgyptN[-1] / EgyptN[-nrow(normalized)])),
+    China_Log = c(NA, log(ChinaN[-1] / ChinaN[-nrow(normalized)])),
+    Brazil_Log = c(NA, log(BrazilN[-1] / BrazilN[-nrow(normalized)])),
+  )
+
+normalized_trimmed <- normalized_trimmed |>
+  mutate(
+    FTSE_per = FTSEWorld_Log * 100, 
+    India_Per = India_Log * 100,
+    Egpyt_per = EgyptN_Log * 100, 
+    China_per = China_Log * 100, 
+    Brazil_per = Brazil_Log * 100,
+  )
+
+log_return <- select(normalized_trimmed,
+    -"FTSEWorldN":-"BrazilN"
+  )
+
+log_return <- log_return[-1, ]
+
+desc_data <- describe(normalized_trimmed) |>
+  t()
+
+desc_data <- as.data.frame(desc_data)
+
+desc_data <- desc_data[-c(1, 5:9), ]
+
+desc_data <- select(desc_data,
+                    -"FTSE_per":-"Brazil_per"
+                    )
+
+final_desc_data_log <- select(desc_data,
+                              FTSEWorld_Log:Brazil_Log
+                              )
+
+write.csv(final_desc_data_log, "exported_data/desc_data_log.csv")
+```
+
+The lines above does several things, in short:
+
+-   We add rows for log(10) returns (most commonly used while working with historical returns in finance)
+
+-   We create new dataframes that separates data
+
+-   We use describe() (a function from the psych package), it returns descriptive statistics from the dataset and we store this in a new dataframe called desc_data.
+
+-   A few more selective operations followed by an export to a csv if we at a later point would like to use the descriptive data from the project.
+
+At this point we have dataframes with the data organized to make further analysis later in the project.
+
+## Dataset two
+
+Initial value / ( Initial value / 100 ). The initial value divided by 100 will be exectued on each of the observation on each row. This results in a graph where we can compare each indicies including our benchmark (FTSE World).
+
+If we graph this it looks like the following:
 
 Here we now have a table of the number of the following:
 
@@ -87,6 +177,6 @@ Future:
 
 Sidenote
 
-## Access to the project files
+## Current state of the project and access to the project files
 
-The files and data for this project has been made public on GitHub and you can find it on this link. I personally always found it useful to look at other peoples work when learning and hopefully this can come to use for someone else. All links are relative and should be fully replaceable.
+I've made a repository on github on this [link](https://github.com/Whitecube182/R_folder/). The files for this project can be located under Assignments/Emerging_markets.

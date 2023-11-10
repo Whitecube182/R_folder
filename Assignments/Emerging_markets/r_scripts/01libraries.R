@@ -6,6 +6,7 @@ library(readxl)
 library(psych)
 library(janitor)
 library(readxl)
+library(ggplot2)
 
 #If any of the packages are missing you can run the following (just remove the comment marker:
 
