@@ -16,7 +16,7 @@ To measure countries development there are several metrics that can be useful. I
 
 This paper will have a limited scope. We are seeking to investigate indices data representing each country. The countries selected for this paper are India, Egypt, China and Brazil.
 
--   How has the historical development been in indices founds been in India, Egypt, China and Brazil?
+-   How has the historical development been in indices funds been in India, Egypt, China and Brazil?
 
 -   What has the historical risk been?
 
@@ -33,10 +33,6 @@ The second data set is downloaded from The World Bank. The data-set is actually 
 ## Project libraries
 
 This project will make use of several libraries in RStudio. In order to use them we need to load them. To avoid any problems with replicating the code I've made a file to load all. This file also contains a comment with an install command if you are missing any of them on your local setup. To access the install command you can mark the area in the file and press "CTRL+Shift+C". This will remove the comment and allow you to press CTRL+ENTER to execute the code and install dependencies.
-
-```{r}
-source("r_scripts/01libraries.R")
-```
 
 To make the code cleaner, I've made a script folder and separated the required libraries in that file. The command above simply executes the commands in that file. The following are the lines that has been executed.
 
@@ -158,7 +154,7 @@ At this point we have dataframes with the data organized to make further analysi
 As mentioned earlier we used a function called describe, it returns the data in a frame where we have some abbreviations, for anyone not familiar with statistics they are the following:
 
 | Short    | Definition                                                                                                                                                                              |
-|----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|------------|------------------------------------------------------------|
 | n        | Number of observations                                                                                                                                                                  |
 | mean     | The avarage                                                                                                                                                                             |
 | sd       | Standard deviation (this is considered risk in financial terms)                                                                                                                         |
@@ -218,7 +214,7 @@ population_clean <- select(population,
 
 ```
 
-Above we are simply cleaning out and making usable dataframes for later in the project. There are simply two frames we are currently interested in here. Is population_clean and gdp_clean. We removed all years before 2003 as we are using this data together with the data from dataset one.
+Above we are simply cleaning out and making usable data frames for later in the project. There are simply two frames we are currently interested in here. Is population_clean and gdp_clean. We removed all years before 2003 as we are using this data together with the data from dataset one.
 
 ## Join dataset one and two
 
@@ -263,5 +259,29 @@ ggplot(
 ) +
   geom_line( mapping = aes())
 
+
+```
+
+The returns combined in one image resuluts in the following:
+
+```{r}
+
+ggplot(
+  data = normalized_trimmed,
+  mapping = aes(x = Date)
+) +
+  geom_line(aes(y = FTSEWorldN, color = "FTSEWorldN")) +
+  geom_line(aes(y = IndiaN, color = "IndiaN")) +
+  geom_line(aes(y = EgyptN, color = "EgyptN")) +
+  geom_line(aes(y = ChinaN, color = "ChinaN")) +
+  geom_line(aes(y = BrazilN, color = "BrazilN")) +
+  scale_color_manual(values = c("FTSEWorldN" = "red", "IndiaN" = "green", "EgyptN" = "blue", "ChinaN" = "orange", "BrazilN" = "purple")) +
+  labs(
+    title = "Geometric eturns 20 years",
+    x = "Date",
+    y = "Return",
+    color = "Countries"
+  ) +
+  theme_minimal()
 
 ```
