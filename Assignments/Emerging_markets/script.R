@@ -10,14 +10,15 @@ library(psych)
 library(janitor)
 library(readxl)
 library(ggplot2)
+library(reshape2)
 
 #If any of the packages are missing you can run the following (just remove the comment marker:
-
+# To remove the comments on multiply lines, use CTRL+SHIFT+C
 # install.packages(
 #   c("arrow", "babynames", "curl", "duckdb", "gapminder",
 #     "ggrepel", "ggridges", "ggplot", "ggthemes", "here", "hexbin", "janitor", "Lahman",
 #     "readxl", "leaflet", "maps", "nycflights13", "openxlsx", "palmerpenguins", "psych",
-#     "repurrrsive", "tidymodels", "tidyvinstallerse", "writexl")
+#     "repurrrsive","reshape2", "tidymodels", "tidyvinstallerse", "writexl")
 # )
 
 
@@ -106,11 +107,6 @@ final_desc_data_log <- select(desc_data,
 
 write.csv(final_desc_data_log, "exported_data/desc_data_log.csv")
 
-#Move the dates to the first column to make it easier to work with
-
-population_clean <- population_clean %>%
-  rownames_to_column(var="Date")
-
 #make the x go away
 
 population_clean$Date <- sub("^x", "", population_clean$Date)
@@ -140,6 +136,7 @@ population <- read_excel("datasets/population.xls", skip = 3)
 #Transform and derive data based on these two metrics
 
 gdp <- clean_names(gdp)
+
 population <- clean_names(population)
 
 
@@ -173,7 +170,29 @@ population_clean <- select(population,
 
 first_last_pop <- population_clean[c(1, nrow(population_clean)),]
 
-#Creating a df and plot for population data
+#Move the dates to the first column to make it easier to work with
+
+population_clean <- population_clean %>%
+  rownames_to_column(var="Date")
+
+population_clean$Date <- sub("^x", "", population_clean$Date)
+
+names(population_clean)[4] <- "Egypt"
+
+population_first_last <- population_clean[c(1, nrow(population_clean)), ]
+
+
+
+
+#Here we clean up the gdp_clean, correct name and moving in rows to column 1:
+
+names(gdp_clean)[3] <- "Egypt"
+
+gdp_clean <- gdp_clean %>%
+  rownames_to_column(var="Date")
+
+gdp_clean$Date <- sub("^x", "", gdp_clean$Date)
+
 
 #3. Visualzation data set 1 ----
 
@@ -230,8 +249,39 @@ ggplot(
   ) +
   theme_minimal()
 
-ggplot(
-  data = population_clean,
-  mapping = aes(x = "")
-)
+#Changing the values due to some problematic types of values
+pop_clean_long <- population_clean %>%
+  pivot_longer(cols = -Date, names_to = "Country", values_to = "Population") %>%
+  mutate(Population = as.numeric(Population))
 
+# Plot the development of each country
+ggplot(pop_clean_long, aes(x = Date, y = Population, color = Country, group = Country)) +
+  geom_line(size = 1) +
+  labs(title = "Population Development Over Time",
+       x = "Year",
+       y = "Population",
+       color = "Country") +
+  theme_minimal() +
+  scale_y_continuous(breaks = seq(0, max(pop_clean_long$Population), by = 250000000), labels = scales::comma)
+
+
+#Make a graph of the gdp:
+
+gdp_clean_long <- gdp_clean_long %>%
+  mutate_all(as.double)
+
+gdp_clean_long <- gdp_clean_long %>%
+  mutate(Date = as.numeric(Date))
+
+gdp_clean_long <- gdp_clean %>%
+  pivot_longer(cols = -Date, names_to = "Country", values_to = "Population")
+
+# Plot the development of each country
+ggplot(gdp_clean_long, aes(x = Date, y = Population, color = Country, group = Country)) +
+  geom_line(size = 1) +
+  labs(title = "Population Development Over Time",
+       x = "Year",
+       y = "Population",
+       color = "Country") +
+  theme_minimal() +
+  scale_y_continuous(labels = scales::comma) 

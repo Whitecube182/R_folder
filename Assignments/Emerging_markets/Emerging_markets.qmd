@@ -10,11 +10,13 @@ format: pdf
 
 Emerging markets can be great investment opportunity. In order to make good investment decisions and understand the risk and return for any investment you have to analyze historical data.
 
-To measure countries development there are several metrics that can be useful. In this paper we will use keep things simple and only use one metric and that is gross domestic product (GDP onwards). We could use a lot more metrics but to limit the scope of this paper we are only using GDP. In a separate dataset we will have the population for the countries in question.
+To measure countries development there are several metrics that can be useful. In this paper we will keep things simple and only use two metrics and that is gross domestic product (GDP onwards) and population. We could use a lot more metrics but to limit the scope of this paper we are only using GDP and population.
+
+In total we are considering indicies (including a benchmark of FTSE world), GDP and population. Even though the amount of data is small we hope to derive some interesting insights.
 
 ## Research question
 
-This paper will have a limited scope. We are seeking to investigate indices data representing each country. The countries selected for this paper are India, Egypt, China and Brazil.
+This paper will have a limited scope. We are seeking to investigate indices data representing each country. The countries selected for this paper are India, Egypt, China and Brazil. Furthermore we
 
 -   How has the historical development been in indices funds been in India, Egypt, China and Brazil?
 
@@ -22,19 +24,19 @@ This paper will have a limited scope. We are seeking to investigate indices data
 
 -   What degree of correlation does the indices have with the GDP for each country?
 
-In this paper, we consider risk to be standard deviation of the dataset.
+-   How does correlation between the indices, GDP and population size?
+
+In this paper, we consider risk to be standard deviation of the dataset for the indices.
 
 ## Data sets
 
-There are three datasets acquired for this paper. The first one is downloaded from [refinitive/datastream](https://www.refinitiv.com/en). For more information regarding the data provider you can follow this [link](https://www.refinitiv.com/content/dam/marketing/en_us/documents/fact-sheets/datastream-economic-data-macro-research-fact-sheet.pdf). This will be refereed to as dataset one. The data in the file are time-series spanning from 19. September 2003 to 19. September 2023. The measurements are done with a monthly interval. All data points are represented in US dollar.
+There are three datasets we have acquired for this paper. The first one is downloaded from [refinitive/datastream](https://www.refinitiv.com/en). For more information regarding the data provider you can follow this [link](https://www.refinitiv.com/content/dam/marketing/en_us/documents/fact-sheets/datastream-economic-data-macro-research-fact-sheet.pdf). This will be refereed to as dataset one. The data in the file are time-series spanning from 19. September 2003 to 19. September 2023. The measurements are done with a monthly interval. All data points are represented in US dollar.
 
 The second data set is downloaded from The World Bank. The data-set is actually divide into two files but will be combined in RStudio as they each only contain one metric of data, GDP and population.
 
 ## Project libraries
 
-This project will make use of several libraries in RStudio. In order to use them we need to load them. To avoid any problems with replicating the code I've made a file to load all. This file also contains a comment with an install command if you are missing any of them on your local setup. To access the install command you can mark the area in the file and press "CTRL+Shift+C". This will remove the comment and allow you to press CTRL+ENTER to execute the code and install dependencies.
-
-To make the code cleaner, I've made a script folder and separated the required libraries in that file. The command above simply executes the commands in that file. The following are the lines that has been executed.
+This project will make use of several libraries in RStudio. The following code snippet will load all the necessary libraries for this project.
 
 ```{r}
 library(here)
@@ -43,13 +45,14 @@ library(readxl)
 library(psych)
 library(janitor)
 library(readxl)
+library(ggplot2)
 ```
 
-NB! We will add any library we add and check it at the end to assure that the project is not missing any dependencies.
+**NB! We will add any library we add and check it at the end to assure that the project is not missing any dependencies.**
 
-With all the libraries loaded we are ready to start working with our data sets. To be able to replica the current sets I've made a github repo where you can access the files, they can be accessed [here](https://github.com/Whitecube182/BUS350). Dataset two is accessible from [World Bank DataBank](https://data.worldbank.org/indicator). However, the refinitive dataset would required you to have a refinitive account. Therefore, to assure that the project is reproducible I made the repository linked above.
+With all the libraries loaded we are ready to start working with our data sets. To be able to replicate the current sets, I have made a github repository where you can access the files. These can be accessed [here](https://github.com/Whitecube182/BUS350). Dataset two is accessible from [World Bank DataBank](https://data.worldbank.org/indicator). However, the refinitive dataset would required you to have a refinitive account. Therefore, to assure that the project is reproducible I made the repository linked above.
 
-In all, we have three excel files in the folder datasets that can be accessed in the project folder.
+In all, we have three excel files in the folder data sets that can be accessed in the project folder.
 
 ## Import, tidy & transformation
 
@@ -63,7 +66,7 @@ This section will be split into three sections:
 
 ## Dataset one
 
-Initially we want to start to access the data we collected in the dataset folder. The data is stored as a excel file that has been stored in the project folder. To make it possible to work with in r we start by importing the file and puting the data in a dataframe called index_emerging_markets.
+Initially we want to start to access the data we collected in the dataset folder. The data is stored as a excel file that has been stored in the project folder. To make it possible to work with in RStudio we start by importing the file and adding the data into a data-frame called index_emerging_markets.
 
 ```{r}
 index_emerging_markets <- read_excel("datasets/FTSE 20.09.23 - EOH.xlsx", skip = 6)
@@ -74,7 +77,7 @@ index_emerging_markets <- index_emerging_markets |>
   )
 ```
 
-We changed to name of the coulmn for dates to dates from names with the second row. The data in this file is currently in absolute values of the indices. To be able to make comparisons we need to normalize the data with the start of 100. In order to do so we are using the following line:
+We changed to name of the column for dates to dates from names with the second row. The data in this file is currently in absolute values of the indices. To be able to make comparisons we need to normalize the data with the start of 100. In order to do so we are using the following lines:
 
 ```{r}
 normalized <- index_emerging_markets |>
@@ -154,7 +157,7 @@ At this point we have dataframes with the data organized to make further analysi
 As mentioned earlier we used a function called describe, it returns the data in a frame where we have some abbreviations, for anyone not familiar with statistics they are the following:
 
 | Short    | Definition                                                                                                                                                                              |
-|------------|------------------------------------------------------------|
+|------------------|------------------------------------------------------|
 | n        | Number of observations                                                                                                                                                                  |
 | mean     | The avarage                                                                                                                                                                             |
 | sd       | Standard deviation (this is considered risk in financial terms)                                                                                                                         |
@@ -162,7 +165,7 @@ As mentioned earlier we used a function called describe, it returns the data in 
 | kurtosis | An indicator of the tail of the distribution ([source](https://www.investopedia.com/terms/k/kurtosis.asp)).                                                                             |
 | se       | Standard error, and estimation of the standard deviation.                                                                                                                               |
 
-: Describ() explination
+: Furthermore, all this data is contextual and even though it does not provide any direct information to answer our research questions it does provide information about the data set. The skew indicates if the return are aligning more on the left of or the right side of the distribution. The kurtosis are relevant due to indicating extreme values deviating from the mean. In financial terms this would be extreme profit or loss. The risk (standard deviation) and the mean (return) are directly related to the question.
 
 ## Dataset two
 
@@ -211,14 +214,20 @@ population_clean <- select(population,
   row_to_names(row_number = 1) |>
   as.data.frame()
 
+first_last_pop <- population_clean[c(1, nrow(population_clean)),]
+
+population_clean <- population_clean %>%
+  rownames_to_column(var="Date")
+
+
 
 ```
 
 Above we are simply cleaning out and making usable data frames for later in the project. There are simply two frames we are currently interested in here. Is population_clean and gdp_clean. We removed all years before 2003 as we are using this data together with the data from dataset one.
 
-## Join dataset one and two
+## Join dataset one and two! ----------THIS IS WHERE I AM
 
-Now we have a decent amount of dataframes from the two first datasets. in order to make
+Now we have a decent amount of dataframes from the two first datasets we want to join them together.
 
 ## Visualzation
 
