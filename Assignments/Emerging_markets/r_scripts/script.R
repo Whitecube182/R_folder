@@ -106,7 +106,14 @@ final_desc_data_log <- select(desc_data,
 
 write.csv(final_desc_data_log, "exported_data/desc_data_log.csv")
 
+#Move the dates to the first column to make it easier to work with
 
+population_clean <- population_clean %>%
+  rownames_to_column(var="Date")
+
+#make the x go away
+
+population_clean$Date <- sub("^x", "", population_clean$Date)
 
 #3. df data set 2 ----
 
@@ -162,6 +169,12 @@ population_clean <- select(population,
   row_to_names(row_number = 1) |>
   as.data.frame()
 
+#Creating a df with only first and last value
+
+first_last_pop <- population_clean[c(1, nrow(population_clean)),]
+
+#Creating a df and plot for population data
+
 #3. Visualzation data set 1 ----
 
 #Cleared the whole thing as it wasn't working. Need to put in some
@@ -216,3 +229,9 @@ ggplot(
     color = "Countries"
   ) +
   theme_minimal()
+
+ggplot(
+  data = population_clean,
+  mapping = aes(x = "")
+)
+
