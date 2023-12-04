@@ -1,5 +1,4 @@
-#This project will be written in one long file, having multiply did not really
-#help. Only made things harder to keep track of.  
+#This project is written in one continues file
 
 #1. Load lib ----
 
@@ -22,23 +21,20 @@ library(reshape2)
 # )
 
 
-#2. df data set 1 ----
+#2. Data set 1 ----
 
 #Data transformation for the indices
 #Load data from excel file and place it in a object
-
 index_emerging_markets <- read_excel("datasets/FTSE 20.09.23 - EOH.xlsx", skip = 6)
 
 
 #Change the name of the first column to date
-
 index_emerging_markets <- index_emerging_markets |>
   rename(
     Date = Name
   )
 
 #We want to normalize the values with the base 100 and add these to the table
-
 normalized <- index_emerging_markets |>
   mutate(
     FTSEWorldN = FTSEWorld / (146.2 / 100),
@@ -49,12 +45,10 @@ normalized <- index_emerging_markets |>
   )
 
 #Select only the normalized data
-
 normalized_trimmed <- normalized |>
   select(Date, FTSEWorldN:BrazilN)
 
 #Create a new section of columns for logarithmic (log10) returns
-
 normalized_trimmed <- normalized_trimmed |>
   mutate(
     FTSEWorld_Log = c(NA, log(FTSEWorldN[-1] / FTSEWorldN[-nrow(normalized)])),
@@ -75,15 +69,12 @@ normalized_trimmed <- normalized_trimmed |>
   )
 
 #Put log to another df
-
 log_return <- select(normalized_trimmed,
                      -"FTSEWorldN":-"BrazilN"
 )
-
 log_return <- log_return[-1, ]
 
 #Export descriptive_data from the normalized frame to a new object
-
 desc_data <- describe(normalized_trimmed) |>
   t()
 
@@ -104,42 +95,20 @@ final_desc_data_log <- select(desc_data,
 )
 
 #write the data to a csv file in our project folder
-
 write.csv(final_desc_data_log, "exported_data/desc_data_log.csv")
 
-#make the x go away
+#3. Data set 2 ----
 
-population_clean$Date <- sub("^x", "", population_clean$Date)
-
-#3. df data set 2 ----
-
-
-#Names for the countries
+#Names for the countries & import
 countries <- c("India", "Egypt, Arab Rep.", "China", "Brazil")
-
-
-#Import the data set from the file population
-
 gdp <- read_excel("datasets/gdp.xls", skip = 3)
-
-#Import data set from the file gdp
-
 population <- read_excel("datasets/population.xls", skip = 3)
 
-#The two files above are downloaded from The World Bank and are accessible from
-# https://data.worldbank.org
-
-
-#To do list
-#clear out the two sets from irrelevant data
-#Join the two data sets into one df
-#Transform and derive data based on these two metrics
-
+#Cleaning names
 gdp <- clean_names(gdp)
-
 population <- clean_names(population)
 
-
+#Filter data gdp
 gdp_clean <- select(gdp,
                     -"x1960":-"x2002",
                     -"indicator_code",
@@ -153,6 +122,7 @@ gdp_clean <- select(gdp,
   row_to_names(row_number = 1) |>
   as.data.frame()
 
+#Filter data population
 population_clean <- select(population,
                            -"x1960":-"x2002",
                            -"indicator_code",
@@ -166,62 +136,32 @@ population_clean <- select(population,
   row_to_names(row_number = 1) |>
   as.data.frame()
 
-#Creating a df with only first and last value
-
-first_last_pop <- population_clean[c(1, nrow(population_clean)),]
-
-#Move the dates to the first column to make it easier to work with
-
+#Move the dates to the first column, sub away x from dates, change Egypt to proper name
 population_clean <- population_clean %>%
   rownames_to_column(var="Date")
-
 population_clean$Date <- sub("^x", "", population_clean$Date)
-
 names(population_clean)[4] <- "Egypt"
-
-population_first_last <- population_clean[c(1, nrow(population_clean)), ]
-
-
-
 
 #Here we clean up the gdp_clean, correct name and moving in rows to column 1:
 
-names(gdp_clean)[3] <- "Egypt"
-
 gdp_clean <- gdp_clean %>%
   rownames_to_column(var="Date")
-
 gdp_clean$Date <- sub("^x", "", gdp_clean$Date)
+names(gdp_clean)[4] <- "Egypt"
 
-#Same for the pop_clean
-names(population_clean)[3] <- "China"
-names(population_clean)[4] <- "Egypt"
-
-population_clean <- population_clean %>%
-  rownames_to_column(var="Date")
-
-population_clean$Date <- sub("^x", "", population_clean$Date)
-
-
-#Change population clean to numeric
-
+#Change population_clean to to numeric
 population_clean$Brazil <- as.numeric(population_clean$Brazil)
 population_clean$China <- as.numeric(population_clean$China)
 population_clean$Egypt <- as.numeric(population_clean$Egypt)
 population_clean$India <- as.numeric(population_clean$India)
 population_clean$Date <- as.numeric(population_clean$Date)
 
-#Testing
-
 #Gdp_clean as.numeric
-
 gdp_clean$Brazil <- as.numeric(gdp_clean$Brazil)
 gdp_clean$China <- as.numeric(gdp_clean$China)
 gdp_clean$Egypt <- as.numeric(gdp_clean$Egypt)
 gdp_clean$India <- as.numeric(gdp_clean$India)
 gdp_clean$Date <- as.numeric(gdp_clean$Date)
-
-#Test
 
 # Melt the data to long format
 gdp_clean_long <- pivot_longer(gdp_clean, cols = -Date, names_to = "Country", values_to = "GDP")
@@ -229,24 +169,14 @@ gdp_clean_long <- pivot_longer(gdp_clean, cols = -Date, names_to = "Country", va
 # Convert Date column to numeric
 gdp_clean_long$Date <- as.numeric(gdp_clean_long$Date)
 
-# Plot using ggplot2 with facet_grid
-ggplot(gdp_clean_long, aes(x = Date, y = GDP, fill = Country)) +
-  geom_area() +
-  labs(title = "GDP Over Years",
-       x = "Year",
-       y = "GDP",
-       fill = "Country") +
-  theme_minimal() +
-  facet_grid(. ~ Country, scales = "free_y")
-
 # Pivot the data to long format
-long_df <- pivot_longer(population_clean, cols = -Date, names_to = "Country", values_to = "Population")
+population_clean_long <- pivot_longer(population_clean, cols = -Date, names_to = "Country", values_to = "Population")
 
 # Convert Date column to numeric
-long_df$Date <- as.numeric(long_df$Date)
+population_clean_long$Date <- as.numeric(population_clean_long$Date)
 
 # Plot using ggplot2
-ggplot(long_df, aes(x = Date, y = Population, color = Country, group = Country)) +
+ggplot(population_clean_long, aes(x = Date, y = Population, color = Country, group = Country)) +
   geom_line() +
   labs(title = "Population Over Years",
        x = "Year",
@@ -254,23 +184,29 @@ ggplot(long_df, aes(x = Date, y = Population, color = Country, group = Country))
        color = "Country") +
   theme_minimal()
 
-#Facet representation for the four countries
+#3.1 Join gdp and Population
 
-ggplot(long_df, aes(x = Date, y = Population, fill = Country)) +
-  geom_area() +
-  labs(title = "Population Over Years",
+gdp_pop <- left_join(population_clean_long, gdp_clean_long, by = c("Date", "Country"))
+names(gdp_pop)[4] <- "GDP"
+names(gdp_pop)[3] <- "Population"
+
+
+
+ggplot(gdp_pop, aes(x = Date)) +
+  geom_line(aes(y = Population, color = Country, group = Country)) +
+  geom_bar(aes(y = GDP, fill = Country), stat = "identity", alpha = 0.5) +
+  labs(title = "Population and GDP Over Years",
        x = "Year",
-       y = "Population",
+       y = "Values",
+       color = "Country",
        fill = "Country") +
   theme_minimal() +
-  facet_grid(.~ Country, scales = "free_y")
+  facet_wrap(~ Country, scales = "free_y")
 
-#3. Visualzation data set 1 ----
+#4. Visualzation data set 1 ----
 
-#Cleared the whole thing as it wasn't working. Need to put in some
-#hours and get a more robust frame before my meeting next week!
-
-
+#4.1 Indicies development graph (normalized) -----
+#Visualizing the countries development(normalized)
 ggplot(
   data = normalized_trimmed,
   mapping = aes(x = Date, y = FTSEWorldN )
@@ -320,6 +256,7 @@ ggplot(
   ) +
   theme_minimal()
 
+#4.2 Population graph ----
 #Changing the values due to some problematic types of values
 pop_clean_long <- population_clean %>%
   pivot_longer(cols = -Date, names_to = "Country", values_to = "Population") %>%
@@ -335,11 +272,29 @@ ggplot(pop_clean_long, aes(x = Date, y = Population, color = Country, group = Co
   theme_minimal() +
   scale_y_continuous(breaks = seq(0, max(pop_clean_long$Population), by = 250000000), labels = scales::comma)
 
+#4.2.1 Population facet graph
+ggplot(population_clean_long, aes(x = Date, y = Population, fill = Country)) +
+  geom_area() +
+  labs(title = "Population Over Years",
+       x = "Year",
+       y = "Population",
+       fill = "Country") +
+  theme_minimal() +
+  facet_grid(.~ Country, scales = "free_y")
 
+#4.3.1 GDP facet grid ----
+
+ggplot(gdp_clean_long, aes(x = Date, y = GDP, fill = Country)) +
+  geom_area() +
+  labs(title = "GDP Over Years",
+       x = "Year",
+       y = "GDP",
+       fill = "Country") +
+  theme_minimal() +
+  facet_grid(. ~ Country, scales = "free_y")
+
+#4.3.2 GDP Graph ----
 #Make a graph of the gdp:
-
-gdp_clean_long <- gdp_clean_long %>%
-  mutate_all(as.double)
 
 gdp_clean_long <- gdp_clean_long %>%
   mutate(Date = as.numeric(Date))
@@ -350,9 +305,21 @@ gdp_clean_long <- gdp_clean %>%
 # Plot the development of each country
 ggplot(gdp_clean_long, aes(x = Date, y = Population, color = Country, group = Country)) +
   geom_line(size = 1) +
-  labs(title = "Population Development Over Time",
+  labs(title = "GDP Development Over Time",
        x = "Year",
        y = "Population",
        color = "Country") +
   theme_minimal() +
   scale_y_continuous(labels = scales::comma) 
+
+
+ggplot(gdp_pop, aes(x = Date)) +
+  geom_line(aes(y = Population, color = Country, group = Country)) +
+  geom_bar(aes(y = GDP, fill = Country), stat = "identity", alpha = 0.5) +
+  labs(title = "Population and GDP Over Years",
+       x = "Year",
+       y = "Values",
+       color = "Country",
+       fill = "Country") +
+  theme_minimal() +
+  facet_wrap(~ Country, scales = "free_y")

@@ -46,6 +46,7 @@ library(psych)
 library(janitor)
 library(readxl)
 library(ggplot2)
+library(reshape2)
 ```
 
 **NB! We will add any library we add and check it at the end to assure that the project is not missing any dependencies.**
@@ -157,7 +158,7 @@ At this point we have dataframes with the data organized to make further analysi
 As mentioned earlier we used a function called describe, it returns the data in a frame where we have some abbreviations, for anyone not familiar with statistics they are the following:
 
 | Short    | Definition                                                                                                                                                                              |
-|------------------|------------------------------------------------------|
+|------------|------------------------------------------------------------|
 | n        | Number of observations                                                                                                                                                                  |
 | mean     | The avarage                                                                                                                                                                             |
 | sd       | Standard deviation (this is considered risk in financial terms)                                                                                                                         |
@@ -187,7 +188,6 @@ The datsets are filled with data we do not have any use for therefore we need to
 gdp <- clean_names(gdp)
 population <- clean_names(population)
 
-
 gdp_clean <- select(gdp,
   -"x1960":-"x2002",
   -"indicator_code",
@@ -214,20 +214,43 @@ population_clean <- select(population,
   row_to_names(row_number = 1) |>
   as.data.frame()
 
-first_last_pop <- population_clean[c(1, nrow(population_clean)),]
-
 population_clean <- population_clean %>%
   rownames_to_column(var="Date")
 
+population_clean <- population_clean %>%
+  rownames_to_column(var="Date")
+population_clean$Date <- sub("^x", "", population_clean$Date)
+names(population_clean)[4] <- "Egypt"
 
+gdp_clean <- gdp_clean %>%
+  rownames_to_column(var="Date")
+gdp_clean$Date <- sub("^x", "", gdp_clean$Date)
+names(gdp_clean)[4] <- "Egypt"
 
+population_clean$Brazil <- as.numeric(population_clean$Brazil)
+population_clean$China <- as.numeric(population_clean$China)
+population_clean$Egypt <- as.numeric(population_clean$Egypt)
+population_clean$India <- as.numeric(population_clean$India)
+population_clean$Date <- as.numeric(population_clean$Date)
+
+gdp_clean$Brazil <- as.numeric(gdp_clean$Brazil)
+gdp_clean$China <- as.numeric(gdp_clean$China)
+gdp_clean$Egypt <- as.numeric(gdp_clean$Egypt)
+gdp_clean$India <- as.numeric(gdp_clean$India)
+gdp_clean$Date <- as.numeric(gdp_clean$Date)
+
+gdp_clean_long <- pivot_longer(gdp_clean, cols = -Date, names_to = "Country", values_to = "GDP")
+gdp_clean_long$Date <- as.numeric(gdp_clean_long$Date)
+
+population_clean_long <- pivot_longer(population_clean, cols = -Date, names_to = "Country", values_to = "Population")
+population_clean_long$Date <- as.numeric(population_clean_long$Date)
 ```
 
-Above we are simply cleaning out and making usable data frames for later in the project. There are simply two frames we are currently interested in here. Is population_clean and gdp_clean. We removed all years before 2003 as we are using this data together with the data from dataset one.
+Above we are simply cleaning out and making usable data frames for later in the project and for future visualization. We also assure that the data is in its correct form,
 
-## Join dataset one and two! ----------THIS IS WHERE I AM
+## Join data set 1 & 2
 
-Now we have a decent amount of dataframes from the two first datasets we want to join them together.
+Join dataset 1 & 2
 
 ## Visualzation
 
