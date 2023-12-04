@@ -193,6 +193,77 @@ gdp_clean <- gdp_clean %>%
 
 gdp_clean$Date <- sub("^x", "", gdp_clean$Date)
 
+#Same for the pop_clean
+names(population_clean)[3] <- "China"
+names(population_clean)[4] <- "Egypt"
+
+population_clean <- population_clean %>%
+  rownames_to_column(var="Date")
+
+population_clean$Date <- sub("^x", "", population_clean$Date)
+
+
+#Change population clean to numeric
+
+population_clean$Brazil <- as.numeric(population_clean$Brazil)
+population_clean$China <- as.numeric(population_clean$China)
+population_clean$Egypt <- as.numeric(population_clean$Egypt)
+population_clean$India <- as.numeric(population_clean$India)
+population_clean$Date <- as.numeric(population_clean$Date)
+
+#Testing
+
+#Gdp_clean as.numeric
+
+gdp_clean$Brazil <- as.numeric(gdp_clean$Brazil)
+gdp_clean$China <- as.numeric(gdp_clean$China)
+gdp_clean$Egypt <- as.numeric(gdp_clean$Egypt)
+gdp_clean$India <- as.numeric(gdp_clean$India)
+gdp_clean$Date <- as.numeric(gdp_clean$Date)
+
+#Test
+
+# Melt the data to long format
+gdp_clean_long <- pivot_longer(gdp_clean, cols = -Date, names_to = "Country", values_to = "GDP")
+
+# Convert Date column to numeric
+gdp_clean_long$Date <- as.numeric(gdp_clean_long$Date)
+
+# Plot using ggplot2 with facet_grid
+ggplot(gdp_clean_long, aes(x = Date, y = GDP, fill = Country)) +
+  geom_area() +
+  labs(title = "GDP Over Years",
+       x = "Year",
+       y = "GDP",
+       fill = "Country") +
+  theme_minimal() +
+  facet_grid(. ~ Country, scales = "free_y")
+
+# Pivot the data to long format
+long_df <- pivot_longer(population_clean, cols = -Date, names_to = "Country", values_to = "Population")
+
+# Convert Date column to numeric
+long_df$Date <- as.numeric(long_df$Date)
+
+# Plot using ggplot2
+ggplot(long_df, aes(x = Date, y = Population, color = Country, group = Country)) +
+  geom_line() +
+  labs(title = "Population Over Years",
+       x = "Year",
+       y = "Population",
+       color = "Country") +
+  theme_minimal()
+
+#Facet representation for the four countries
+
+ggplot(long_df, aes(x = Date, y = Population, fill = Country)) +
+  geom_area() +
+  labs(title = "Population Over Years",
+       x = "Year",
+       y = "Population",
+       fill = "Country") +
+  theme_minimal() +
+  facet_grid(.~ Country, scales = "free_y")
 
 #3. Visualzation data set 1 ----
 
