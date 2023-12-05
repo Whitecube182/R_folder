@@ -158,7 +158,7 @@ At this point we have dataframes with the data organized to make further analysi
 As mentioned earlier we used a function called describe, it returns the data in a frame where we have some abbreviations, for anyone not familiar with statistics they are the following:
 
 | Short    | Definition                                                                                                                                                                              |
-|------------|------------------------------------------------------------|
+|------------------|------------------------------------------------------|
 | n        | Number of observations                                                                                                                                                                  |
 | mean     | The avarage                                                                                                                                                                             |
 | sd       | Standard deviation (this is considered risk in financial terms)                                                                                                                         |
@@ -217,8 +217,6 @@ population_clean <- select(population,
 population_clean <- population_clean %>%
   rownames_to_column(var="Date")
 
-population_clean <- population_clean %>%
-  rownames_to_column(var="Date")
 population_clean$Date <- sub("^x", "", population_clean$Date)
 names(population_clean)[4] <- "Egypt"
 
@@ -238,19 +236,13 @@ gdp_clean$China <- as.numeric(gdp_clean$China)
 gdp_clean$Egypt <- as.numeric(gdp_clean$Egypt)
 gdp_clean$India <- as.numeric(gdp_clean$India)
 gdp_clean$Date <- as.numeric(gdp_clean$Date)
-
-gdp_clean_long <- pivot_longer(gdp_clean, cols = -Date, names_to = "Country", values_to = "GDP")
-gdp_clean_long$Date <- as.numeric(gdp_clean_long$Date)
-
-population_clean_long <- pivot_longer(population_clean, cols = -Date, names_to = "Country", values_to = "Population")
-population_clean_long$Date <- as.numeric(population_clean_long$Date)
 ```
 
-Above we are simply cleaning out and making usable data frames for later in the project and for future visualization. We also assure that the data is in its correct form,
+Above we are simply cleaning out and making usable data frames for later in the project and for future visualization. We also assure that the data is in its correct form
 
 ## Join data set 1 & 2
 
-Join dataset 1 & 2
+Join data set 1 & 2 and check correlation on each series. This will involve calculating the yearly return from the indicies, and join them. And check correlation and covariance.
 
 ## Visualzation
 
@@ -261,6 +253,7 @@ The first thing we want to get a better overveiw over is dataset one.
 The normalized development of the FTSE Indicies can simply be graph it out doing the following:
 
 ```{r}
+
 ggplot(
   data = normalized_trimmed,
   mapping = aes(x = Date, y = FTSEWorldN )
@@ -291,10 +284,9 @@ ggplot(
 ) +
   geom_line( mapping = aes())
 
-
 ```
 
-The returns combined in one image resuluts in the following:
+The returns combined in one image results in the following:
 
 ```{r}
 
@@ -309,7 +301,7 @@ ggplot(
   geom_line(aes(y = BrazilN, color = "BrazilN")) +
   scale_color_manual(values = c("FTSEWorldN" = "red", "IndiaN" = "green", "EgyptN" = "blue", "ChinaN" = "orange", "BrazilN" = "purple")) +
   labs(
-    title = "Geometric eturns 20 years",
+    title = "Returns 20 years",
     x = "Date",
     y = "Return",
     color = "Countries"
@@ -317,3 +309,108 @@ ggplot(
   theme_minimal()
 
 ```
+
+The Graphs above shows the development for the stocks and the benchmark (normalized to 100 for comparison).
+
+The next graph we want to show is the population development over time:
+
+```{r}
+pop_clean_long <- population_clean %>%
+  pivot_longer(cols = -Date, names_to = "Country", values_to = "Population") %>%
+  mutate(Population = as.numeric(Population))
+
+ggplot(pop_clean_long, aes(x = Date, y = Population, color = Country, group = Country)) +
+  geom_line(size = 1) +
+  labs(title = "Population Development Over Time",
+       x = "Year",
+       y = "Population",
+       color = "Country") +
+  theme_minimal() +
+  scale_y_continuous(breaks = seq(0, max(pop_clean_long$Population), by = 250000000), labels = scales::comma)
+
+```
+
+Another way that makes it a bit easier to understand the development for each country would be:
+
+```{r}
+ggplot(population_clean_long, aes(x = Date, y = Population, fill = Country)) +
+  geom_area() +
+  labs(title = "Population Over Years",
+       x = "Year",
+       y = "Population",
+       fill = "Country") +
+  theme_minimal() +
+  facet_grid(.~ Country, scales = "free_y")
+```
+
+In the same way we can represent the GDP:
+
+```{r}
+ggplot(gdp_clean_long, aes(x = Date, y = GDP, fill = Country)) +
+  geom_area() +
+  labs(title = "GDP Over Years",
+       x = "Year",
+       y = "GDP",
+       fill = "Country") +
+  theme_minimal() +
+  facet_grid(. ~ Country, scales = "free_y")
+```
+
+GDP graph:
+
+```{r}
+gdp_clean_long <- gdp_clean_long %>%
+  mutate(Date = as.numeric(Date))
+
+gdp_clean_long <- gdp_clean %>%
+  pivot_longer(cols = -Date, names_to = "Country", values_to = "Population")
+
+ggplot(gdp_clean_long, aes(x = Date, y = Population, color = Country, group = Country)) +
+  geom_line(size = 1) +
+  labs(title = "GDP Development Over Time",
+       x = "Year",
+       y = "GDP",
+       color = "Country") +
+  theme_minimal() +
+  scale_y_continuous(labels = scales::comma) 
+
+```
+
+For good messure we can also present the GDP and the population in this way:
+
+```{r}
+ggplot(gdp_pop, aes(x = Date)) +
+  geom_bar(aes(y = GDP, fill = Country), stat = "identity", alpha = 0.5) +
+  labs(title = "GDP Over Years",
+       x = "Year",
+       y = "Values",
+       color = "Country",
+       fill = "Country") +
+  theme_minimal() +
+  facet_wrap(~ Country, scales = "free_y")
+```
+
+```{r}
+ggplot(gdp_pop, aes(x = Date)) +
+  geom_bar(aes(y = Population, fill = Country), stat = "identity", alpha = 0.5) +
+  labs(title = "Population Over Years",
+       x = "Year",
+       y = "Values",
+       color = "Country",
+       fill = "Country") +
+  theme_minimal() +
+  facet_wrap(~ Country, scales = "free_y")
+```
+
+Before we continue to the conclusion we need to look at the correlation between this data. In the current state we can already see that all of the data are in upwards trends. Population are all increasing and so are returns for the countries indices and also the benchmark (FTSE World). We can also conclude from the graphs that indices are fluctuating a lot more compared to population and GDP.
+
+Now I would also like to introduce some previously extracted data we can find in the exported csv in our project folder or in the data frame called final_desc.
+
+| Monthly          | FTSE World | Brazil | China  | Egypt  | India  |
+|------------------|------------|--------|--------|--------|--------|
+| Return (monthly) | 0,47%      | 0,41%  | 0,53%  | 0,49%  | 0,87%  |
+| Return (annual)  | 5,74%      | 5,03%  | 6,58%  | 6,00%  | 10,98% |
+| Risk (monthly)   | 5,24%      | 10,65% | 8,02%  | 9,05%  | 8,24%  |
+| Risk (annual)    | 18,15%     | 36,88% | 27,80% | 31,35% | 28,53% |
+
+From this overview we can quickly conclude that India by far had the best performance with a 10,98% annual return yet at a lower risk compared to both Egypt and Brazil.

@@ -27,7 +27,6 @@ library(reshape2)
 #Load data from excel file and place it in a object
 index_emerging_markets <- read_excel("datasets/FTSE 20.09.23 - EOH.xlsx", skip = 6)
 
-
 #Change the name of the first column to date
 index_emerging_markets <- index_emerging_markets |>
   rename(
@@ -163,45 +162,14 @@ gdp_clean$Egypt <- as.numeric(gdp_clean$Egypt)
 gdp_clean$India <- as.numeric(gdp_clean$India)
 gdp_clean$Date <- as.numeric(gdp_clean$Date)
 
-# Melt the data to long format
-gdp_clean_long <- pivot_longer(gdp_clean, cols = -Date, names_to = "Country", values_to = "GDP")
-
-# Convert Date column to numeric
-gdp_clean_long$Date <- as.numeric(gdp_clean_long$Date)
-
-# Pivot the data to long format
-population_clean_long <- pivot_longer(population_clean, cols = -Date, names_to = "Country", values_to = "Population")
-
-# Convert Date column to numeric
-population_clean_long$Date <- as.numeric(population_clean_long$Date)
-
-# Plot using ggplot2
-ggplot(population_clean_long, aes(x = Date, y = Population, color = Country, group = Country)) +
-  geom_line() +
-  labs(title = "Population Over Years",
-       x = "Year",
-       y = "Population",
-       color = "Country") +
-  theme_minimal()
-
 #3.1 Join gdp and Population
 
+population_clean_long <- pivot_longer(population_clean, cols = -Date, names_to = "Country", values_to = "Population")
+population_clean_long$Date <- as.numeric(population_clean_long$Date)
+
 gdp_pop <- left_join(population_clean_long, gdp_clean_long, by = c("Date", "Country"))
-names(gdp_pop)[4] <- "GDP"
 names(gdp_pop)[3] <- "Population"
-
-
-
-ggplot(gdp_pop, aes(x = Date)) +
-  geom_line(aes(y = Population, color = Country, group = Country)) +
-  geom_bar(aes(y = GDP, fill = Country), stat = "identity", alpha = 0.5) +
-  labs(title = "Population and GDP Over Years",
-       x = "Year",
-       y = "Values",
-       color = "Country",
-       fill = "Country") +
-  theme_minimal() +
-  facet_wrap(~ Country, scales = "free_y")
+names(gdp_pop)[4] <- "GDP"
 
 #4. Visualzation data set 1 ----
 
@@ -249,7 +217,7 @@ ggplot(
   geom_line(aes(y = BrazilN, color = "BrazilN")) +
   scale_color_manual(values = c("FTSEWorldN" = "red", "IndiaN" = "green", "EgyptN" = "blue", "ChinaN" = "orange", "BrazilN" = "purple")) +
   labs(
-    title = "Geometric eturns 20 years",
+    title = "Geometric returns 20 years",
     x = "Date",
     y = "Return",
     color = "Countries"
@@ -258,11 +226,13 @@ ggplot(
 
 #4.2 Population graph ----
 #Changing the values due to some problematic types of values
+
 pop_clean_long <- population_clean %>%
   pivot_longer(cols = -Date, names_to = "Country", values_to = "Population") %>%
   mutate(Population = as.numeric(Population))
 
 # Plot the development of each country
+
 ggplot(pop_clean_long, aes(x = Date, y = Population, color = Country, group = Country)) +
   geom_line(size = 1) +
   labs(title = "Population Development Over Time",
@@ -273,6 +243,7 @@ ggplot(pop_clean_long, aes(x = Date, y = Population, color = Country, group = Co
   scale_y_continuous(breaks = seq(0, max(pop_clean_long$Population), by = 250000000), labels = scales::comma)
 
 #4.2.1 Population facet graph
+
 ggplot(population_clean_long, aes(x = Date, y = Population, fill = Country)) +
   geom_area() +
   labs(title = "Population Over Years",
@@ -303,11 +274,12 @@ gdp_clean_long <- gdp_clean %>%
   pivot_longer(cols = -Date, names_to = "Country", values_to = "Population")
 
 # Plot the development of each country
+
 ggplot(gdp_clean_long, aes(x = Date, y = Population, color = Country, group = Country)) +
   geom_line(size = 1) +
   labs(title = "GDP Development Over Time",
        x = "Year",
-       y = "Population",
+       y = "GDP",
        color = "Country") +
   theme_minimal() +
   scale_y_continuous(labels = scales::comma) 
@@ -323,3 +295,32 @@ ggplot(gdp_pop, aes(x = Date)) +
        fill = "Country") +
   theme_minimal() +
   facet_wrap(~ Country, scales = "free_y")
+
+
+#4.3.3 GDP_POP represented in two graphs ----
+
+ggplot(gdp_pop, aes(x = Date)) +
+  geom_bar(aes(y = GDP, fill = Country), stat = "identity", alpha = 0.5) +
+  labs(title = "GDP Over Years",
+       x = "Year",
+       y = "Values",
+       color = "Country",
+       fill = "Country") +
+  theme_minimal() +
+  facet_wrap(~ Country, scales = "free_y")
+
+ggplot(gdp_pop, aes(x = Date)) +
+  geom_bar(aes(y = Population, fill = Country), stat = "identity", alpha = 0.5) +
+  labs(title = "Population Over Years",
+       x = "Year",
+       y = "Values",
+       color = "Country",
+       fill = "Country") +
+  theme_minimal() +
+  facet_wrap(~ Country, scales = "free_y")
+
+
+#4 Extracting data from current frames
+
+
+Log_Mean_FTSE <- Mean(log_return$Brazil_Log)
