@@ -1,6 +1,6 @@
 ---
-title: "Emerging Markets indecies correlation to GDP"
-subtitle: "An exploration into four emerging markets. This paper will explore the correlation of FTSE indicies and GDP."
+title: "Emerging Markets indices, GDP and population"
+subtitle: "An exploration into four emerging markets. This paper will explore the relationship between indices, GDP and population of four countries."
 author: "Even Oscar Harlert"
 date: 10/18/2023
 format: pdf
@@ -16,7 +16,7 @@ In total we are considering indices (including a benchmark of FTSE world), GDP a
 
 ## Research question
 
-This paper will have a limited scope. We are seeking to investigate indices data representing each country. The countries selected for this paper are India, Egypt, China and Brazil. Furthermore we
+This paper will have a limited scope. We are seeking to investigate indices data representing each country. The countries selected for this paper are India, Egypt, China and Brazil. Our research questions will be the following:
 
 -   How has the historical development been in indices funds been in India, Egypt, China and Brazil?
 
@@ -47,8 +47,6 @@ library(ggplot2)
 library(reshape2)
 ```
 
-**NB! We will add any library we add and check it at the end to assure that the project is not missing any dependencies.**
-
 With all the libraries loaded we are ready to start working with our data sets. To be able to replicate the current sets, I have made a github repository where you can access the files. These can be accessed [here](https://github.com/Whitecube182/BUS350). Dataset two is accessible from [World Bank DataBank](https://data.worldbank.org/indicator). However, the refinitive dataset would required you to have a refinitive account. Therefore, to assure that the project is reproducible I made the repository linked above.
 
 In all, we have three excel files in the folder data sets that can be accessed in the project folder.
@@ -76,7 +74,7 @@ index_emerging_markets <- index_emerging_markets |>
   )
 ```
 
-We changed to name of the column for dates to dates from names with the second row. The data in this file is currently in absolute values of the indices. To be able to make comparisons we need to normalize the data with the start of 100. In order to do so we are using the following lines:
+We changed to name of the column for dates to dates from names with the second row. The data in this file is currently in absolute values of the indices. To be able to make comparisons we need to normalize the data with the start of 100. In order to do so we are using the following:
 
 ```{r}
 normalized <- index_emerging_markets |>
@@ -143,7 +141,7 @@ write.csv(final_desc_data_log, "exported_data/desc_data_log.csv")
 
 The lines above does several things, in short:
 
--   We add rows for log(10) returns (most commonly used while working with historical returns in finance).
+-   We add rows for geometric returns (most commonly used while working with historical returns in finance).
 
 -   We create new data-frames that separates data.
 
@@ -156,7 +154,7 @@ At this point we have data-frames with the data organized to make further analys
 As mentioned earlier we used a function called describe, it returns the data in a frame where we have some abbreviations, for anyone not familiar with statistics they are the following:
 
 | Short    | Definition                                                                                                                                                                              |
-|--------------------|----------------------------------------------------|
+|----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | n        | Number of observations                                                                                                                                                                  |
 | mean     | The avarage                                                                                                                                                                             |
 | sd       | Standard deviation (this is considered risk in financial terms)                                                                                                                         |
@@ -164,7 +162,7 @@ As mentioned earlier we used a function called describe, it returns the data in 
 | kurtosis | An indicator of the tail of the distribution ([source](https://www.investopedia.com/terms/k/kurtosis.asp)).                                                                             |
 | se       | Standard error, and estimation of the standard deviation.                                                                                                                               |
 
-: Furthermore, all this data is contextual and even though it does not provide any direct information to answer our research questions it does provide information about the data set. The skew indicates if the return are aligning more on the left of or the right side of the distribution. The kurtosis are relevant due to indicating extreme values deviating from the mean. In financial terms this would be extreme profit or loss. The risk (standard deviation) and the mean (return) are directly related to the question.
+: Furthermore, all the descriptive data is contextual and even though it does not provide any direct information to answer our research questions it does provide information about the data set. The skew indicates if the return are aligning more on the left of or the right side of the distribution. The kurtosis are relevant due to indicating extreme values deviating from the mean. In financial terms this would be extreme profit or loss. The risk (standard deviation) and the mean (return) are directly related to the question.
 
 ## Dataset two
 
@@ -176,9 +174,9 @@ gdp <- read_excel("datasets/gdp.xls", skip = 3)
 population <- read_excel("datasets/population.xls", skip = 3)
 ```
 
-In addition to loading two dataframes with the data from the files, we also stored the four values (the names of the countries we are working with.
+In addition to loading two dataframes with the data from the files, we also stored the four values (the names of the countries we are working with).
 
-The datsets are filled with data we do not have any use for therefore we need to tidy it:
+The data-sets are filled with data we do not have any use for therefore we need to tidy it:
 
 ```{r}
 gdp <- clean_names(gdp)
@@ -322,7 +320,7 @@ pop_clean_long <- population_clean %>%
   mutate(Population = as.numeric(Population))
 
 ggplot(pop_clean_long, aes(x = Date, y = Population, color = Country, group = Country)) +
-  geom_line(size = 1) +
+  geom_line(linewidth = 1) +
   labs(title = "Population Development Over Time",
        x = "Year",
        y = "Population",
@@ -332,7 +330,7 @@ ggplot(pop_clean_long, aes(x = Date, y = Population, color = Country, group = Co
 
 ```
 
-Since the population diffesr quite a bit a better visualzation would be the following:
+Since the population size differs quite a bit, a better visualization would be the following:
 
 ```{r}
 ggplot(population_clean_long, aes(x = Date, y = Population, fill = Country)) +
@@ -378,7 +376,7 @@ ggplot(gdp_clean_long, aes(x = Date, y = Population, color = Country, group = Co
 
 ```
 
-Again, we see that Egypts GDP is much smaller compared to China. There for we can visualize it like this instead:
+Again, we see that Egypt's GDP is much smaller compared to China. There for we can visualize it like this instead:
 
 ```{r}
 ggplot(gdp_pop, aes(x = Date)) +

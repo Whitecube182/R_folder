@@ -239,7 +239,7 @@ pop_clean_long <- population_clean %>%
   mutate(Population = as.numeric(Population))
 
 ggplot(pop_clean_long, aes(x = Date, y = Population, color = Country, group = Country)) +
-  geom_line(size = 1) +
+  geom_line(linewidth = 1) +
   labs(title = "Population Over Years",
        x = "Year",
        y = "Population",
