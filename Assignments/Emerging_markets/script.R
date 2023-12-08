@@ -167,9 +167,17 @@ gdp_clean$Date <- as.numeric(gdp_clean$Date)
 population_clean_long <- pivot_longer(population_clean, cols = -Date, names_to = "Country", values_to = "Population")
 population_clean_long$Date <- as.numeric(population_clean_long$Date)
 
+gdp_clean_long <- pivot_longer(gdp_clean, cols = -Date, names_to ="Country", values_to = "GDP" )
+gdp_clean_long$Date <- as.numeric(gdp_clean_long$Date)
+
 gdp_pop <- left_join(population_clean_long, gdp_clean_long, by = c("Date", "Country"))
 names(gdp_pop)[3] <- "Population"
 names(gdp_pop)[4] <- "GDP"
+
+#3.2 
+
+
+
 
 #4. Visualzation data set 1 ----
 
@@ -225,17 +233,14 @@ ggplot(
   theme_minimal()
 
 #4.2 Population graph ----
-#Changing the values due to some problematic types of values
 
 pop_clean_long <- population_clean %>%
   pivot_longer(cols = -Date, names_to = "Country", values_to = "Population") %>%
   mutate(Population = as.numeric(Population))
 
-# Plot the development of each country
-
 ggplot(pop_clean_long, aes(x = Date, y = Population, color = Country, group = Country)) +
   geom_line(size = 1) +
-  labs(title = "Population Development Over Time",
+  labs(title = "Population Over Years",
        x = "Year",
        y = "Population",
        color = "Country") +
@@ -320,7 +325,43 @@ ggplot(gdp_pop, aes(x = Date)) +
   facet_wrap(~ Country, scales = "free_y")
 
 
-#4 Extracting data from current frames
+#5. Final data representation ---- 
 
+gdp_pop <- gdp_pop %>%
+  mutate(GDP_per_Capita = GDP / Population)
 
-Log_Mean_FTSE <- Mean(log_return$Brazil_Log)
+ggplot(gdp_pop, aes(x = Date, y = GDP_per_Capita, color = Country)) +
+  geom_line() +
+  labs(title = "GDP per Capita Over Time",
+       x = "Date",
+       y = "GDP per Capita",
+       color = "Country") +
+  theme_minimal()
+
+gdp_pop$Date <- as.factor(gdp_pop$Date)
+gdp_pop$Country <- as.factor(gdp_pop$Country)
+
+# New data frame for gdp per capita and the average return combined
+average_gdp_per_capita <- gdp_pop %>%
+  group_by(Country) %>%
+  summarise(Average_GDP_Per_Capita = mean(GDP_per_Capita, na.rm = TRUE))
+
+transposed_final_desc_data_log <- t(final_desc_data_log)
+transposed_final_desc_data_log <- as.data.frame(t(final_desc_data_log))
+
+mean_values <- transposed_final_desc_data_log %>%
+  select(mean)
+
+mean_values <- rownames_to_column(mean_values, "Country")
+mean_values <- mean_values[-1, ]
+mean_values$Country <- gsub("_Log", "", mean_values$Country, ignore.case = TRUE)
+mean_values$Country <- gsub("EgyptN", "Egypt", mean_values$Country, ignore.case = TRUE)
+merged_mean_gdp <- merge(mean_values, average_gdp_per_capita, by = "Country", all.x = TRUE)
+
+ggplot(merged_mean_gdp, aes(x = Country)) +
+  geom_bar(aes(y = Average_GDP_Per_Capita), stat = "identity", fill = "blue") +
+  geom_text(aes(y = Average_GDP_Per_Capita, label = paste0(round(mean * 100, 2), "%")), vjust = -0.5) +
+  labs(title = "Average GDP per Capita with Mean Values",
+       y = "Average GDP per Capita",
+       fill = "Legend") +
+  theme_minimal()

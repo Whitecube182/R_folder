@@ -156,7 +156,7 @@ At this point we have data-frames with the data organized to make further analys
 As mentioned earlier we used a function called describe, it returns the data in a frame where we have some abbreviations, for anyone not familiar with statistics they are the following:
 
 | Short    | Definition                                                                                                                                                                              |
-|-------------------|-----------------------------------------------------|
+|--------------------|----------------------------------------------------|
 | n        | Number of observations                                                                                                                                                                  |
 | mean     | The avarage                                                                                                                                                                             |
 | sd       | Standard deviation (this is considered risk in financial terms)                                                                                                                         |
@@ -172,9 +172,7 @@ The second dataset is actually two excel files downloaded from the World Bank. A
 
 ```{r}
 countries <- c("India", "Egypt, Arab Rep.", "China", "Brazil")
-
 gdp <- read_excel("datasets/gdp.xls", skip = 3)
-
 population <- read_excel("datasets/population.xls", skip = 3)
 ```
 
@@ -383,9 +381,6 @@ ggplot(gdp_clean_long, aes(x = Date, y = Population, color = Country, group = Co
 Again, we see that Egypts GDP is much smaller compared to China. There for we can visualize it like this instead:
 
 ```{r}
-
-
-
 ggplot(gdp_pop, aes(x = Date)) +
   geom_bar(aes(y = GDP, fill = Country), stat = "identity", alpha = 0.5) +
   labs(title = "GDP Over Years",
