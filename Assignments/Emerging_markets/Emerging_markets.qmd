@@ -12,7 +12,7 @@ Emerging markets can be great investment opportunity. In order to make good inve
 
 To measure countries development there are several metrics that can be useful. In this paper we will keep things simple and only use two metrics and that is gross domestic product (GDP onwards) and population. We could use a lot more metrics but to limit the scope of this paper we are only using GDP and population.
 
-In total we are considering indicies (including a benchmark of FTSE world), GDP and population. Even though the amount of data is small we hope to derive some interesting insights.
+In total we are considering indices (including a benchmark of FTSE world), GDP and population. Even though the amount of data is small we hope to derive some interesting insights.
 
 ## Research question
 
@@ -22,9 +22,7 @@ This paper will have a limited scope. We are seeking to investigate indices data
 
 -   What has the historical risk been?
 
--   What degree of correlation does the indices have with the GDP for each country?
-
--   How does correlation between the indices, GDP and population size?
+-   Is there a relationship between GDP per capita and the indices development for each country?
 
 In this paper, we consider risk to be standard deviation of the dataset for the indices.
 
@@ -63,7 +61,7 @@ This section will be split into three sections:
 
 2.  Import tidy and transform dataset two
 
-3.  We join the datasets into dataframes we can use for visualzation and modelling.
+3.  We join the data-sets into data-frames we can use for visualization and modelling.
 
 ## Dataset one
 
@@ -147,18 +145,18 @@ The lines above does several things, in short:
 
 -   We add rows for log(10) returns (most commonly used while working with historical returns in finance).
 
--   We create new dataframes that separates data.
+-   We create new data-frames that separates data.
 
--   We use describe() (a function from the psych package), it returns descriptive statistics from the dataset and we store this in a new dataframe called desc_data.
+-   We use describe() (a function from the psych package), it returns descriptive statistics from the dataset and we store this in a new data-frame called desc_data.
 
 -   A few more selective operations followed by an export to a csv if we at a later point would like to use the descriptive data from the project.
 
-At this point we have dataframes with the data organized to make further analysis later in the project.
+At this point we have data-frames with the data organized to make further analysis later in the project.
 
 As mentioned earlier we used a function called describe, it returns the data in a frame where we have some abbreviations, for anyone not familiar with statistics they are the following:
 
 | Short    | Definition                                                                                                                                                                              |
-|------------------|------------------------------------------------------|
+|-------------------|-----------------------------------------------------|
 | n        | Number of observations                                                                                                                                                                  |
 | mean     | The avarage                                                                                                                                                                             |
 | sd       | Standard deviation (this is considered risk in financial terms)                                                                                                                         |
@@ -236,21 +234,27 @@ gdp_clean$China <- as.numeric(gdp_clean$China)
 gdp_clean$Egypt <- as.numeric(gdp_clean$Egypt)
 gdp_clean$India <- as.numeric(gdp_clean$India)
 gdp_clean$Date <- as.numeric(gdp_clean$Date)
+
+population_clean_long <- pivot_longer(population_clean, cols = -Date, names_to = "Country", values_to = "Population")
+population_clean_long$Date <- as.numeric(population_clean_long$Date)
+
+gdp_clean_long <- pivot_longer(gdp_clean, cols = -Date, names_to ="Country", values_to = "GDP" )
+gdp_clean_long$Date <- as.numeric(gdp_clean_long$Date)
+
+gdp_pop <- left_join(population_clean_long, gdp_clean_long, by = c("Date", "Country"))
+names(gdp_pop)[3] <- "Population"
+names(gdp_pop)[4] <- "GDP"
 ```
 
-Above we are simply cleaning out and making usable data frames for later in the project and for future visualization. We also assure that the data is in its correct form
+Above we are simply cleaning out and making usable data frames for later in the project and for future visualization. We also assure that the data is in its correct form.
 
-## Join data set 1 & 2
+## Visualization
 
-Join data set 1 & 2 and check correlation on each series. This will involve calculating the yearly return from the indicies, and join them. And check correlation and covariance.
+Until now we only have several data-frames and descriptive statistics from the data-sets. In this section we will visualize the data to improve our understanding of what the data represent.
 
-## Visualzation
+The first thing we want to get a better overview over is dataset one.
 
-Until now we only have several dataframes and descriptive statistics from the datasets. In this section we will visualize the data to improve our understanding of what the data represent.
-
-The first thing we want to get a better overveiw over is dataset one.
-
-The normalized development of the FTSE Indicies can simply be graph it out doing the following:
+The normalized development of the FTSE Indices can simply be graph it out doing the following:
 
 ```{r}
 
@@ -310,7 +314,7 @@ ggplot(
 
 ```
 
-The Graphs above shows the development for the stocks and the benchmark (normalized to 100 for comparison).
+The Graphs above shows the development for the stocks and the benchmark (normalized to 100\$ invested for comparison).
 
 The next graph we want to show is the population development over time:
 
@@ -330,7 +334,7 @@ ggplot(pop_clean_long, aes(x = Date, y = Population, color = Country, group = Co
 
 ```
 
-Another way that makes it a bit easier to understand the development for each country would be:
+Since the population diffesr quite a bit a better visualzation would be the following:
 
 ```{r}
 ggplot(population_clean_long, aes(x = Date, y = Population, fill = Country)) +
@@ -376,9 +380,12 @@ ggplot(gdp_clean_long, aes(x = Date, y = Population, color = Country, group = Co
 
 ```
 
-For good messure we can also present the GDP and the population in this way:
+Again, we see that Egypts GDP is much smaller compared to China. There for we can visualize it like this instead:
 
 ```{r}
+
+
+
 ggplot(gdp_pop, aes(x = Date)) +
   geom_bar(aes(y = GDP, fill = Country), stat = "identity", alpha = 0.5) +
   labs(title = "GDP Over Years",
@@ -389,6 +396,8 @@ ggplot(gdp_pop, aes(x = Date)) +
   theme_minimal() +
   facet_wrap(~ Country, scales = "free_y")
 ```
+
+And lets do the same thing with Population:
 
 ```{r}
 ggplot(gdp_pop, aes(x = Date)) +
@@ -402,7 +411,23 @@ ggplot(gdp_pop, aes(x = Date)) +
   facet_wrap(~ Country, scales = "free_y")
 ```
 
-Before we continue to the conclusion we need to look at the correlation between this data. In the current state we can already see that all of the data are in upwards trends. Population are all increasing and so are returns for the countries indices and also the benchmark (FTSE World). We can also conclude from the graphs that indices are fluctuating a lot more compared to population and GDP.
+Now, lets see what GDP per capita we have for each country:
+
+```{r}
+gdp_pop <- gdp_pop %>%
+  mutate(GDP_per_Capita = GDP / Population)
+
+
+ggplot(gdp_pop, aes(x = Date, y = GDP_per_Capita, color = Country)) +
+  geom_line() +
+  labs(title = "GDP per Capita",
+       x = "Date",
+       y = "GDP per Capita",
+       color = "Country") +
+  theme_minimal()
+```
+
+All the data we have visualized so far shows that GDP is increasing, population size is increase for each country. We can also note that the benchmark has had a positive return. We can also conclude from the graphs that indices are fluctuating a lot more compared to population and GDP.
 
 Now I would also like to introduce some previously extracted data we can find in the exported csv in our project folder or in the data frame called final_desc.
 
@@ -414,3 +439,56 @@ Now I would also like to introduce some previously extracted data we can find in
 | Risk (annual)    | 18,15%     | 36,88% | 27,80% | 31,35% | 28,53% |
 
 From this overview we can quickly conclude that India by far had the best performance with a 10,98% annual return yet at a lower risk compared to both Egypt and Brazil.
+
+FTSE World, our benchmark, clearly has the lowest overall return while also keeping risk much lower compared to the rest of the emerging markets.
+
+To visualize the different data I produced this graph:
+
+```{r}
+average_gdp_per_capita <- gdp_pop %>%
+  group_by(Country) %>%
+  summarise(Average_GDP_Per_Capita = mean(GDP_per_Capita, na.rm = TRUE))
+
+
+transposed_final_desc_data_log <- t(final_desc_data_log)
+transposed_final_desc_data_log <- as.data.frame(t(final_desc_data_log))
+
+
+mean_values <- transposed_final_desc_data_log %>%
+  select(mean)
+
+mean_values <- rownames_to_column(mean_values, "Country")
+mean_values <- mean_values[-1, ]
+mean_values$Country <- gsub("_Log", "", mean_values$Country, ignore.case = TRUE)
+mean_values$Country <- gsub("EgyptN", "Egypt", mean_values$Country, ignore.case = TRUE)
+merged_mean_gdp <- merge(mean_values, average_gdp_per_capita, by = "Country", all.x = TRUE)
+
+ggplot(merged_mean_gdp, aes(x = Country)) +
+  geom_bar(aes(y = Average_GDP_Per_Capita), stat = "identity", fill = "blue") +
+  geom_text(aes(y = Average_GDP_Per_Capita, label = paste0(round(mean * 100, 2), "%")), vjust = -0.5) +
+  labs(title = "Average GDP per Capita with Mean Values",
+       y = "Average GDP per Capita",
+       fill = "Legend") +
+  theme_minimal()
+```
+
+The data here shows bars with the GDP per capita. On top of each bar we can see the average returns for the countries FTSE index funds. We can here draw the conclusion that the funds return does not show a clear relationship. Brazil has the highest GDP per capita, yet the lowest returns over this period. Yet India with the lowest GDP per capita has had higher returns from its FTSE Fund.
+
+# Conclusion
+
+We can here draw the conclusion that GDP per capita, representing the total output for a country over a year divided on population, does not necessarily go hand in hand with the returns of each countries FTSE index.
+
+If we look at the data china and India have more similar sizes of population yet, India's return are much higher during our 20 year period. Egypt, China and Brazil have more similar returns.
+
+To get back to our research question: "Is there a relationship between GDP per capita and the indices development for each country?" Based on the data we have used in this project I cannot conclude there is a a clear relationship showing. To understand these developments better we would need more extensive research with a more data and more contextualized understanding on the countries development as a whole.
+
+The returns and risk have been summarized in this table:
+
+| Monthly          | FTSE World | Brazil | China  | Egypt  | India  |
+|------------------|------------|--------|--------|--------|--------|
+| Return (monthly) | 0,47%      | 0,41%  | 0,53%  | 0,49%  | 0,87%  |
+| Return (annual)  | 5,74%      | 5,03%  | 6,58%  | 6,00%  | 10,98% |
+| Risk (monthly)   | 5,24%      | 10,65% | 8,02%  | 9,05%  | 8,24%  |
+| Risk (annual)    | 18,15%     | 36,88% | 27,80% | 31,35% | 28,53% |
+
+What stands out here is the almost 11% average return from India over an extended period of time. This is very impressive and as we can see well above the global average. It is also not the most volatility out of our four countries indicating its more stable i.e. a safer investment.
